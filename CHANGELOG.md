@@ -1,5 +1,55 @@
 # Changelog
 
+## [1.3.0](https://github.com/Zuoqiu-Yingyi/siyuan-plugin-webview/compare/v1.2.0...v1.3.0) (2023-07-13)
+
+
+### Features
+
+* **custom-block:** 新增全宽显示功能 | Add full-width display function. ([5e32265](https://github.com/Zuoqiu-Yingyi/siyuan-plugin-webview/commit/5e3226563e5702fb67fdb6e5c4ffd33c83fd4367))
+* **custom-block:** 新增全屏显示功能 | Add full-screen display function. ([09e224e](https://github.com/Zuoqiu-Yingyi/siyuan-plugin-webview/commit/09e224e7f37a101847181012810723b84c8bf8ef))
+* **custom-block:** 新增列表看板视图 | Add list kanban view. ([0636cd1](https://github.com/Zuoqiu-Yingyi/siyuan-plugin-webview/commit/0636cd18f6bb06b1ad24cc2fee53fb5573e8b75c))
+* **custom-block:** 新增列表脑图视图 | Add list mind-map view. ([7347f3b](https://github.com/Zuoqiu-Yingyi/siyuan-plugin-webview/commit/7347f3bf33e047bedeaeb498cf07a34e590b440d))
+* **custom-block:** 新增列表表格视图 | Add list table view. ([1b91c88](https://github.com/Zuoqiu-Yingyi/siyuan-plugin-webview/commit/1b91c88890b8acfe87a8c20c478cafaaedaa6312))
+* **custom-block:** 新增文本排版模式功能 | Add text layout mode function. ([9aac150](https://github.com/Zuoqiu-Yingyi/siyuan-plugin-webview/commit/9aac1508027e572e9e203eeff4ee9320c1f404a9))
+* **custom-block:** 新增显示块 ID 功能 | Add display block ID function. ([628c613](https://github.com/Zuoqiu-Yingyi/siyuan-plugin-webview/commit/628c61306bd64af2ae8397d96863eff36db595e9))
+* **custom-block:** 新增显示块内容功能 | Add display block content function. ([9542955](https://github.com/Zuoqiu-Yingyi/siyuan-plugin-webview/commit/95429552459d48e797e4d3cc4fc90486d2d712c7))
+* **custom-block:** 新增显示块序号功能 | Add display block index function. ([0bd517d](https://github.com/Zuoqiu-Yingyi/siyuan-plugin-webview/commit/0bd517da6e2030c08aff9bb223065eb2765e0ebd))
+* **custom-block:** 新增显示块轮廓功能 | Add display block outline function. ([ceff865](https://github.com/Zuoqiu-Yingyi/siyuan-plugin-webview/commit/ceff865208128172460a6231b31ab0c4e58bc7cf))
+* **custom-block:** 新增滚动显示功能 | Add scrolling display function. ([a36ac1e](https://github.com/Zuoqiu-Yingyi/siyuan-plugin-webview/commit/a36ac1e1695afa558f1bad6fef95047799df97e4))
+* **custom-block:** 新增表格单元格宽度模式 | Add table cell width mode. ([700aaa9](https://github.com/Zuoqiu-Yingyi/siyuan-plugin-webview/commit/700aaa9655631e82813f131523dcbf2816de05e1))
+* **custom-block:** 新增设置面板 | Add settings panel. ([20fbea9](https://github.com/Zuoqiu-Yingyi/siyuan-plugin-webview/commit/20fbea96cf88a46ec9303581dc4d947dc21c8167))
+* **custom-block:** 新增设置面板 | Add settings panel. ([58a1674](https://github.com/Zuoqiu-Yingyi/siyuan-plugin-webview/commit/58a16748bd7ad9b87c54e7c4449bee3dfb8d12db))
+* **webview:** 新增快捷键与命令 | Add keyboard shortcuts and commands. ([d738cfe](https://github.com/Zuoqiu-Yingyi/siyuan-plugin-webview/commit/d738cfebe9914c8054886bfa1d27645732c46981))
+* **webview:** 添加块引用菜单 | Add block reference menu. ([19b4806](https://github.com/Zuoqiu-Yingyi/siyuan-plugin-webview/commit/19b48063a2b5c881f90c90b3792196e57da06e1b))
+* **webview:** 添加超链接菜单 | Add hyperlink menu. ([94d4a30](https://github.com/Zuoqiu-Yingyi/siyuan-plugin-webview/commit/94d4a3068d6ddaab12742cd502309873b760c59f))
+
+
+### Performance Improvements
+
+* **webview:** 优化思源静态文件服务的判断 | Optimize the judgment of siyuan static file service. ([6e67f00](https://github.com/Zuoqiu-Yingyi/siyuan-plugin-webview/commit/6e67f00bcbc55b6dffdde75c78b04ab832a6b8fa))
+
+
+### Documentation
+
+* **custom-block:** 完善文档 | Improve documentation. ([b08f5a2](https://github.com/Zuoqiu-Yingyi/siyuan-plugin-webview/commit/b08f5a26254c19905561a7a037bb8307c146d213))
+* **custom-block:** 添加预览图 | Add preview image. ([f96d37c](https://github.com/Zuoqiu-Yingyi/siyuan-plugin-webview/commit/f96d37ca4cf1fb205c28c20ef2111eaae7f6ff88))
+
+
+### Continuous Integration
+
+* **custom-block:** 添加 CD 脚本 | Add CD scripts. ([128bcb7](https://github.com/Zuoqiu-Yingyi/siyuan-plugin-webview/commit/128bcb7a6fcb0906915ceb326bb1006b8cf0ddcb))
+
+
+### Build System
+
+* update dependencies ([a4e82a6](https://github.com/Zuoqiu-Yingyi/siyuan-plugin-webview/commit/a4e82a61d7e4e3fa35ac6dc1a9d7d9cd3d342ff4))
+
+
+### Miscellaneous
+
+* **custom-block:** release v1.0.0 ([5640adc](https://github.com/Zuoqiu-Yingyi/siyuan-plugin-webview/commit/5640adc211f2f2cfd22d0e6a3a54d25713443fb0))
+* **webview:** release v1.3.0 ([6af1519](https://github.com/Zuoqiu-Yingyi/siyuan-plugin-webview/commit/6af1519a1ec21e8f4d30afb7af10334326a91c37))
+
 ## [1.2.0](https://github.com/Zuoqiu-Yingyi/siyuan-plugin-webview/compare/v1.1.0...v1.2.0) (2023-07-03)
 
 
