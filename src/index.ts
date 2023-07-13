@@ -31,12 +31,22 @@ import {
     Pathname,
     buildSiyuanWebURL,
     editorType2Pathname,
+    isStaticPathname,
     parseSiyuanURL,
 } from "@workspace/utils/siyuan/url";
 import {
     getBlockMenuContext,
-    type BlockMenuDetail,
 } from "@workspace/utils/siyuan/menu/block";
+import { EditorType } from "@workspace/utils/siyuan";
+import { calculateScreenPosition, type IPosition } from "@workspace/utils/dom/position";
+
+import type {
+    IClickBlockIconEvent,
+    IClickEditorTitleIconEvent,
+    IOpenMenuBlockRefEvent,
+    IOpenMenuLinkEvent,
+} from "@workspace/types/siyuan/events";
+import type { BlockID } from "@workspace/types/siyuan";
 
 // import Settings from "@workspace/components/siyuan/setting/Example.svelte";
 
@@ -54,8 +64,6 @@ import {
     type IOverwrite,
     type IWebPreferences,
 } from "./utils/window";
-import { EditorType } from "~/../../packages/utils/siyuan";
-import type { IPosition } from "./types";
 
 export default class WebviewPlugin extends siyuan.Plugin {
     static readonly GLOBAL_CONFIG_NAME = "global-config";
@@ -113,8 +121,34 @@ export default class WebviewPlugin extends siyuan.Plugin {
                 }
                 globalThis.addEventListener(this.config.window.open.mouse.type, this.openWindowEventListener, true);
 
-                this.eventBus.on("click-blockicon", this.blockMenuEventListener);
+                /* 文档块菜单 */
                 this.eventBus.on("click-editortitleicon", this.blockMenuEventListener);
+                /* 其他块菜单 */
+                this.eventBus.on("click-blockicon", this.blockMenuEventListener);
+                /* 块引用菜单 */
+                this.eventBus.on("open-menu-blockref", this.blockRefMenuEventListener);
+                /* 超链接菜单 */
+                this.eventBus.on("open-menu-link", this.linkMenuEventListener);
+
+                /* 快捷键/命令 */
+                this.addCommand({
+                    langKey: "openDesktopWindow",
+                    langText: this.i18n.menu.openDesktopWindow.label,
+                    hotkey: "⇧⌘N",
+                    customHotkey: "",
+                    callback: () => {
+                        this.openSiyuanDesktopWindow();
+                    },
+                });
+                this.addCommand({
+                    langKey: "openMobildWindow",
+                    langText: this.i18n.menu.openMobildWindow.label,
+                    hotkey: "",
+                    customHotkey: "",
+                    callback: () => {
+                        this.openSiyuanMobileWindow();
+                    },
+                });
             })
 
     }
@@ -190,6 +224,8 @@ export default class WebviewPlugin extends siyuan.Plugin {
 
         this.eventBus.off("click-blockicon", this.blockMenuEventListener);
         this.eventBus.off("click-editortitleicon", this.blockMenuEventListener);
+        this.eventBus.off("open-menu-blockref", this.blockRefMenuEventListener);
+        this.eventBus.off("open-menu-link", this.linkMenuEventListener);
     }
 
     openSetting(): void {
@@ -232,8 +268,19 @@ export default class WebviewPlugin extends siyuan.Plugin {
         return this.config.general.background;
     }
 
-    /* 打开新标签页 */
-    public openWebviewTab(href: string, title?: string, icon: string = "iconLanguage") {
+    /** 
+     * 打开新标签页
+     * @param href: 访问地址
+     * @param title: 页签标题
+     * @param icon: 页签图标
+     * @param options: 页签其他选项
+     */
+    public openWebviewTab(
+        href: string,
+        title?: string,
+        icon: string = "iconLanguage",
+        options: object = {},
+    ) {
         siyuan.openTab({
             app: this.app,
             custom: {
@@ -245,6 +292,9 @@ export default class WebviewPlugin extends siyuan.Plugin {
                     title: title || this.name,
                 },
             },
+            keepCursor: false,
+            removeCurrentTab: false,
+            ...options,
         });
     }
 
@@ -275,9 +325,39 @@ export default class WebviewPlugin extends siyuan.Plugin {
                 webPreferences,
                 this,
             );
+            return window;
         } catch (err) {
             this.logger.warn(err);
         }
+    }
+
+    /**
+     * 在新窗口打开网页
+     * @param: e: 位置信息
+     * @param: href: 地址
+     * @param: title: 标题
+     */
+    public openWebpageWindow(
+        href: string,
+        title: string,
+        e?: MouseEvent | IPosition,
+    ) {
+        const params = {
+            x: e?.screenX ?? 0,
+            y: e?.screenY ?? 0,
+            title: title,
+            alwaysOnTop: false, // 禁用置顶
+            autoHideMenuBar: true, // 自动隐藏菜单栏
+            webPreferences: {
+                nodeIntegration: false, // 是否启用 Node.js 内置模块
+                webviewTag: false, // 是否启用 webview 标签
+                contextIsolation: false, // 是否开启上下文隔离, 设置 false 之后可以使用 require
+            },
+
+            enableMenuBar: true, // (自定义) 启用菜单栏
+            enableElectron: false, // (自定义) 启用 Electron 环境
+        };
+        return this.openWindow(href, params);
     }
 
     /* 打开思源桌面端窗口 */
@@ -299,7 +379,7 @@ export default class WebviewPlugin extends siyuan.Plugin {
 
             enableMenuBar: true, // (自定义) 启用菜单栏
             enableElectron: true, // (自定义) 启用 Electron 环境
-        }
+        };
         this.openWindow(href || buildSiyuanWebURL(Pathname.desktop).href, params);
     }
 
@@ -322,7 +402,7 @@ export default class WebviewPlugin extends siyuan.Plugin {
 
             enableMenuBar: true,
             enableElectron: true,
-        }
+        };
         this.openWindow(href || buildSiyuanWebURL(Pathname.mobile).href, params);
     }
 
@@ -340,6 +420,24 @@ export default class WebviewPlugin extends siyuan.Plugin {
                 this.openSiyuanMobileWindow(e, url.href);
                 break;
         }
+    }
+
+    /* 通过 ID 打开思源窗口 */
+    public openSiyuanWindowByID(element: HTMLElement, id: BlockID, focus: boolean) {
+        const url = buildSiyuanWebURL(
+            editorType2Pathname(this.config.window.siyuan.editorType),
+            {
+                id,
+                focus,
+            },
+        );
+
+        this.openSiyuanWindowByURL(element, url);
+    }
+
+    /* 通过 URL 打开思源窗口 */
+    public openSiyuanWindowByURL(element: HTMLElement, url: URL) {
+        this.openSiyuanWindow(url, calculateScreenPosition(element) as any);
     }
 
     /* 是否为有效的 URL 协议 */
@@ -386,34 +484,245 @@ export default class WebviewPlugin extends siyuan.Plugin {
         return meta;
     }
 
-    /* 添加块菜单项 */
-    protected readonly blockMenuEventListener = (e: any) => {
+    /* 块引用菜单 */
+    protected readonly blockRefMenuEventListener = (e: IOpenMenuBlockRefEvent) => {
         // this.logger.debug(e);
-        const detail = e.detail as BlockMenuDetail;
+
+        const element = e.detail.element; // 块引用 DOM 元素
+        const id = element.dataset.id; // 块引用目标块 ID
+        const submenu: siyuan.IMenuItemOption[] = [];
+
+        /* 新窗口打开块 */
+        submenu.push({
+            icon: "iconOpenWindow",
+            label: this.i18n.menu.openEditor.label,
+            click: () => this.openSiyuanWindowByID(element, id, false),
+        });
+
+        /* 新窗口打开块并聚焦 */
+        submenu.push({
+            icon: "iconFocus",
+            label: this.i18n.menu.openFocusedEditor.label,
+            click: () => this.openSiyuanWindowByID(element, id, true),
+        });
+
+        e.detail.menu.addItem({
+            icon: "iconLanguage",
+            label: this.i18n.displayName,
+            submenu,
+        });
+    }
+
+    /* 超链接菜单 */
+    protected readonly linkMenuEventListener = (e: IOpenMenuLinkEvent) => {
+        // this.logger.debug(e);
+        const submenu: siyuan.IMenuItemOption[] = [];
+
+        const element = e.detail.element; // 超链接元素
+        const link = this.parseHyperlinkMeta(element, this.config.tab.open.targets);
+
+        switch (true) {
+            /* 思源超链接 */
+            case link.href.startsWith("siyuan:"): {
+                const url = new URL(link.href);
+                const param = parseSiyuanURL(url);
+
+                /* 在后台页签中打开 */
+                submenu.push({
+                    icon: "iconFile",
+                    label: this.i18n.menu.openTabBackground.label,
+                    click: () => {
+                        siyuan.openTab({
+                            app: this.app,
+                            doc: {
+                                id: param.id,
+                                action: [
+                                    "cb-get-focus", // 光标定位到块
+                                    "cb-get-hl", // 高亮块
+                                ],
+                                zoomIn: param.focus,
+                            },
+                            keepCursor: true, // 焦点不跳转到新 tab
+                            removeCurrentTab: false, // 不移除原页签
+                        });
+                    },
+                });
+                /* 在页签右侧打开 */
+                submenu.push({
+                    icon: "iconLayoutRight",
+                    label: this.i18n.menu.openTabRight.label,
+                    click: () => {
+                        siyuan.openTab({
+                            app: this.app,
+                            doc: {
+                                id: param.id,
+                                action: [
+                                    "cb-get-focus", // 光标定位到块
+                                    "cb-get-hl", // 高亮块
+                                ],
+                                zoomIn: param.focus,
+                            },
+                            position: "right",
+                            keepCursor: false, // 焦点不跳转到新 tab
+                            removeCurrentTab: false, // 不移除原页签
+                        });
+                    },
+                });
+                /* 在页签下侧打开 */
+                submenu.push({
+                    icon: "iconLayoutBottom",
+                    label: this.i18n.menu.openTabBottom.label,
+                    click: () => {
+                        siyuan.openTab({
+                            app: this.app,
+                            doc: {
+                                id: param.id,
+                                action: [
+                                    "cb-get-focus", // 光标定位到块
+                                    "cb-get-hl", // 高亮块
+                                ],
+                                zoomIn: param.focus,
+                            },
+                            position: "bottom",
+                            keepCursor: false, // 焦点不跳转到新 tab
+                            removeCurrentTab: false, // 不移除原页签
+                        });
+                    },
+                });
+                /* 使用新窗口打开 */
+                submenu.push({
+                    icon: "iconOpenWindow",
+                    label: this.i18n.menu.openByNewWindow.label,
+                    click: () => this.openSiyuanWindowByID(element, param.id, param.focus),
+                });
+                break;
+            }
+
+            /* 静态文件服务 */
+            case isStaticPathname(link.href): {
+                const href = link.href.startsWith("/")
+                    ? `${globalThis.location.origin}${link.href}`
+                    : `${globalThis.document.baseURI}${link.href}`;
+
+                if (FLAG_ELECTRON && FLAG_DESKTOP) {
+                    /* 在后台页签中打开 */
+                    submenu.push({
+                        icon: "iconFile",
+                        label: this.i18n.menu.openTabBackground.label,
+                        click: () => this.openWebviewTab(
+                            href,
+                            link.title,
+                            undefined,
+                            { keepCursor: true },
+                        ),
+                    });
+                    /* 在页签右侧打开 */
+                    submenu.push({
+                        icon: "iconLayoutRight",
+                        label: this.i18n.menu.openTabRight.label,
+                        click: () => this.openWebviewTab(
+                            href,
+                            link.title,
+                            undefined,
+                            { position: "right" },
+                        ),
+                    });
+                    /* 在页签下侧打开 */
+                    submenu.push({
+                        icon: "iconLayoutBottom",
+                        label: this.i18n.menu.openTabBottom.label,
+                        click: () => this.openWebviewTab(
+                            href,
+                            link.title,
+                            undefined,
+                            { position: "bottom" },
+                        ),
+                    });
+                }
+                /* 使用新窗口打开 */
+                submenu.push({
+                    icon: "iconOpenWindow",
+                    label: this.i18n.menu.openByNewWindow.label,
+                    click: () => this.openWebpageWindow(
+                        href,
+                        link.title,
+                        calculateScreenPosition(element),
+                    ),
+                });
+                break;
+            }
+
+            /* 其他超链接 */
+            default: {
+                if (FLAG_ELECTRON && FLAG_DESKTOP) {
+                    /* 在后台页签中打开 */
+                    submenu.push({
+                        icon: "iconFile",
+                        label: this.i18n.menu.openTabBackground.label,
+                        click: () => this.openWebviewTab(
+                            link.href,
+                            link.title,
+                            undefined,
+                            { keepCursor: true },
+                        ),
+                    });
+                    /* 在页签右侧打开 */
+                    submenu.push({
+                        icon: "iconLayoutRight",
+                        label: this.i18n.menu.openTabRight.label,
+                        click: () => this.openWebviewTab(
+                            link.href,
+                            link.title,
+                            undefined,
+                            { position: "right" },
+                        ),
+                    });
+                    /* 在页签下侧打开 */
+                    submenu.push({
+                        icon: "iconLayoutBottom",
+                        label: this.i18n.menu.openTabBottom.label,
+                        click: () => this.openWebviewTab(
+                            link.href,
+                            link.title,
+                            undefined,
+                            { position: "bottom" },
+                        ),
+                    });
+                }
+                /* 使用新窗口打开 */
+                submenu.push({
+                    icon: "iconOpenWindow",
+                    label: this.i18n.menu.openByNewWindow.label,
+                    click: () => this.openWebpageWindow(
+                        link.href,
+                        link.title,
+                        calculateScreenPosition(element),
+                    ),
+                });
+                break;
+            }
+        }
+
+        e.detail.menu.addItem({
+            icon: "iconLanguage",
+            label: this.i18n.displayName,
+            submenu,
+        });
+    }
+
+    /* 块菜单 */
+    protected readonly blockMenuEventListener = (e: IClickBlockIconEvent | IClickEditorTitleIconEvent) => {
+        // this.logger.debug(e);
+        const detail = e.detail;
         const context = getBlockMenuContext(e.detail);
         if (context) {
             const submenu: siyuan.IMenuItemOption[] = [];
-            const clickEventListener = (element: HTMLElement, focus: boolean) => {
-                const url = buildSiyuanWebURL(
-                    editorType2Pathname(this.config.window.siyuan.editorType),
-                    {
-                        id: context.id,
-                        focus,
-                    }
-                );
-
-                const rect = element.getBoundingClientRect();
-                this.openSiyuanWindow(url, {
-                    screenX: globalThis.screenX + rect.x,
-                    screenY: globalThis.screenY + rect.y,
-                } as any);
-            };
 
             /* 新窗口打开块 */
             submenu.push({
                 icon: "iconOpenWindow",
                 label: this.i18n.menu.openEditor.label,
-                click: (element) => clickEventListener(element, false),
+                click: (element) => this.openSiyuanWindowByID(element, context.id, false),
             });
 
             if (!context.isDocumentBlock // 不是文档块
@@ -423,7 +732,7 @@ export default class WebviewPlugin extends siyuan.Plugin {
                 submenu.push({
                     icon: "iconFocus",
                     label: this.i18n.menu.openFocusedEditor.label,
-                    click: (element) => clickEventListener(element, true),
+                    click: (element) => this.openSiyuanWindowByID(element, context.id, true),
                 });
             }
 
