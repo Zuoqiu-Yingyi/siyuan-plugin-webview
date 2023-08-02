@@ -1,5 +1,89 @@
 # Changelog
 
+## [1.3.1](https://github.com/Zuoqiu-Yingyi/siyuan-plugin-webview/compare/v1.3.0...v1.3.1) (2023-08-02)
+
+
+### Miscellaneous
+
+* **custom-block:** release v1.0.2 ([e005544](https://github.com/Zuoqiu-Yingyi/siyuan-plugin-webview/commit/e0055444aba8d54d979db25d2aa44564ad82ac06))
+* **webview:** release v1.3.1 ([d81ba84](https://github.com/Zuoqiu-Yingyi/siyuan-plugin-webview/commit/d81ba840bf04b37392ddcd4d7147c916d264647f))
+
+
+### Continuous Integration
+
+* 优化 CD 配置 | Optimize CD configuration. ([90d7c83](https://github.com/Zuoqiu-Yingyi/siyuan-plugin-webview/commit/90d7c83d874aa97284ca84530c6a89d49c5a1f48))
+
+
+### Documentation
+
+* **custom-block:** Optimize document ([c84f1c1](https://github.com/Zuoqiu-Yingyi/siyuan-plugin-webview/commit/c84f1c102d64a50322a179ee1be4b820f95df3ad))
+* 完善说明文档 | Improve documentation. ([29e10ac](https://github.com/Zuoqiu-Yingyi/siyuan-plugin-webview/commit/29e10acc00767c174bc2ea68574fa8178e41fcaa))
+* 完善说明文档 | Improve documentation. ([f028682](https://github.com/Zuoqiu-Yingyi/siyuan-plugin-webview/commit/f028682adb7d6a3dc115ad9dbd9e70978ef4952e))
+
+
+### Features
+
+* **monaco-editor:** 为文件资源管理器添加列表辅助线 | Add list guides lines to the file explorer. ([999a1f1](https://github.com/Zuoqiu-Yingyi/siyuan-plugin-webview/commit/999a1f1554bd24f61f4a5b187e47edff70a13153))
+* **monaco-editor:** 为编辑器添加更改语言模式命令 | Add change model language command to editor. ([60d9278](https://github.com/Zuoqiu-Yingyi/siyuan-plugin-webview/commit/60d927878a4bc5775665c7fc82eaba1b32f1fbdc))
+* **monaco-editor:** 在操作受保护的资源时进行二次确认 | Double confirmation when operating protected resources. ([52315c2](https://github.com/Zuoqiu-Yingyi/siyuan-plugin-webview/commit/52315c296a3bac4e87e50e41495289d42f1f0ea9))
+* **monaco-editor:** 在新页签/新窗口中打开编辑器 | Open editor in new tab/new window. ([2d2ae77](https://github.com/Zuoqiu-Yingyi/siyuan-plugin-webview/commit/2d2ae777f7e78c251e341331457520c5cd82aded))
+* **monaco-editor:** 在新页签/新窗口中打开编辑器 | Open editor in new tab/new window. ([0871582](https://github.com/Zuoqiu-Yingyi/siyuan-plugin-webview/commit/08715820e86218bf8a28bfe5afef626ddd199873))
+* **monaco-editor:** 实现 iframe 编辑器 | Implement iframe editor. ([df894c9](https://github.com/Zuoqiu-Yingyi/siyuan-plugin-webview/commit/df894c90aa36c5beff07193a5dfd1b5107ae4811))
+* **monaco-editor:** 实现侧边栏编辑器 | Implement sidebar editor. ([bae5ddd](https://github.com/Zuoqiu-Yingyi/siyuan-plugin-webview/commit/bae5dddb60d13d63caf983ee6b961add9e2c1053))
+* **monaco-editor:** 实现块处理器 | Implement block handler. ([fbfe232](https://github.com/Zuoqiu-Yingyi/siyuan-plugin-webview/commit/fbfe232b339fe505b4dfdb502413d82194fb4f1e))
+* **monaco-editor:** 差异编辑器支持单独配置 | Diff editor supports separate configuration. ([f2fb9a1](https://github.com/Zuoqiu-Yingyi/siyuan-plugin-webview/commit/f2fb9a12e9f8d74a4255775453ead726920058a9))
+* **monaco-editor:** 文件资源管理器支持打开文件 | File explorer supports opening files. ([1481c23](https://github.com/Zuoqiu-Yingyi/siyuan-plugin-webview/commit/1481c23ff142a8e86a16bd0f35116edd943149fe))
+* **monaco-editor:** 文件资源管理支持解析符号链接 | File resource management supports parsing symbolic links. ([aaf47df](https://github.com/Zuoqiu-Yingyi/siyuan-plugin-webview/commit/aaf47df30b08a5d412c2f1555fd4f2bb452d5ddd))
+* **monaco-editor:** 新增添加/另存为菜单项 | Add add/save as menu item. ([8c1b57b](https://github.com/Zuoqiu-Yingyi/siyuan-plugin-webview/commit/8c1b57b059f587ab046ceb195aa2ae5da0a7a45d))
+* **monaco-editor:** 查看网络文件 | View network files. ([a49f049](https://github.com/Zuoqiu-Yingyi/siyuan-plugin-webview/commit/a49f04969ba4b8bb7de370d33d347b533deea347))
+* **monaco-editor:** 添加代码片段编辑菜单 | Add code snippet edit menu. ([f125283](https://github.com/Zuoqiu-Yingyi/siyuan-plugin-webview/commit/f12528313e421d19e4db01084d1f6c156dd0a890))
+* **monaco-editor:** 添加删除文件/文件夹菜单项 | Add delete file/folder menu item. ([1ddd34d](https://github.com/Zuoqiu-Yingyi/siyuan-plugin-webview/commit/1ddd34dbbdc39c5b1c199c13bfcb304ef733ccd8))
+* **monaco-editor:** 添加刷新菜单项 | Add refresh menu item. ([77617b1](https://github.com/Zuoqiu-Yingyi/siyuan-plugin-webview/commit/77617b1d8cbcffabeb186fd88013ff7298e71ec2))
+* **monaco-editor:** 添加工作区目录与文件的提示文本 | Add prompt text for workspace directories and files. ([aca1412](https://github.com/Zuoqiu-Yingyi/siyuan-plugin-webview/commit/aca1412783b65c41bc40eb4c302f96bc3c8ad380))
+* **monaco-editor:** 添加快照文件差异对比菜单 | Add snapshot file diff menu. ([9ae4a61](https://github.com/Zuoqiu-Yingyi/siyuan-plugin-webview/commit/9ae4a61168982e60b150950e85c7f72f2f99870b))
+* **monaco-editor:** 添加打开与复制菜单项 | Add open and copy menu items. ([4015839](https://github.com/Zuoqiu-Yingyi/siyuan-plugin-webview/commit/4015839af4c1ed66ea8a08986dfcf8dad4f06f14))
+* **monaco-editor:** 添加拖拽上传文件/文件夹功能 | Add drag and drop upload file/folder function. ([9dd5a02](https://github.com/Zuoqiu-Yingyi/siyuan-plugin-webview/commit/9dd5a02c4d6bc5bbaa3cc71223f6fb8eb59dc536))
+* **monaco-editor:** 添加拖拽资源移动其位置的功能 | Add the function of dragging resources to move their positions. ([3b3a8d3](https://github.com/Zuoqiu-Yingyi/siyuan-plugin-webview/commit/3b3a8d3b6258f6337fe684d6dd59745ebb7c31bc))
+* **monaco-editor:** 添加拖拽资源至窗口外时的下载功能 | Add download function when dragging resources out of the window. ([5eb88d3](https://github.com/Zuoqiu-Yingyi/siyuan-plugin-webview/commit/5eb88d3618bd4dec4c7ed357d5453288e9c6e89e))
+* **monaco-editor:** 添加收集箱编辑菜单 | Add inbox edit menu. ([11492db](https://github.com/Zuoqiu-Yingyi/siyuan-plugin-webview/commit/11492dbb3cbf109f41ea906785692ba3825d770e))
+* **monaco-editor:** 添加文件/文件夹上传菜单 | Add file/folder upload menu. ([46639ae](https://github.com/Zuoqiu-Yingyi/siyuan-plugin-webview/commit/46639ae6eb40f86cb36e2ec76e2b528230b2835c))
+* **monaco-editor:** 添加文件/文件夹下载菜单 | Add file/folder download menu. ([555feec](https://github.com/Zuoqiu-Yingyi/siyuan-plugin-webview/commit/555feec7ffc0b25cb83a54e80b302e532f07a9a4))
+* **monaco-editor:** 添加文件/文件夹重命名菜单栏 | Add file/folder rename menu item. ([8c0a515](https://github.com/Zuoqiu-Yingyi/siyuan-plugin-webview/commit/8c0a5150419389d47bce9ce9e037bbbd1647d86e))
+* **monaco-editor:** 添加文件历史差异对比菜单 | Add file history diff menu. ([7342c6c](https://github.com/Zuoqiu-Yingyi/siyuan-plugin-webview/commit/7342c6c76a62117f07f77d9626db80f1356bd973))
+* **monaco-editor:** 添加文件预览菜单项 | Add file preview menu item. ([d970b3f](https://github.com/Zuoqiu-Yingyi/siyuan-plugin-webview/commit/d970b3f5b678d1b6344db1739645471ae1f49f9a))
+* **monaco-editor:** 添加新建文件/文件夹菜单项 | Add new file/folder menu item. ([465c885](https://github.com/Zuoqiu-Yingyi/siyuan-plugin-webview/commit/465c8856fa874ccd7447fb996187bdbb69e1af80))
+* **monaco-editor:** 添加设置面板 | Add settings panel. ([698d680](https://github.com/Zuoqiu-Yingyi/siyuan-plugin-webview/commit/698d680ccbf5bc8d66e0a105ba2d4be46c85fa82))
+* **monaco-editor:** 添加静态资源文件拖拽至编辑器时生成超链接的功能 | Add the function of generating hyperlinks when dragging static resource files to the editor. ([af2b774](https://github.com/Zuoqiu-Yingyi/siyuan-plugin-webview/commit/af2b774bb6cedbc78263d8e0aaf1c79b2f7f10ea))
+* **monaco-editor:** 编辑器中思源字段支持悬浮预览域点击跳转 | SiYuan tokens in the editor support hover preview area click to jump. ([fc0c273](https://github.com/Zuoqiu-Yingyi/siyuan-plugin-webview/commit/fc0c273c64cc8647d19b6ce48dde4169446f6d1a))
+* **monaco-editor:** 编辑本地文件 | Edit local files. ([b6818ac](https://github.com/Zuoqiu-Yingyi/siyuan-plugin-webview/commit/b6818ac1bc643b5aca49dd2cb065a2c0ff2099cc))
+* **monaco-editor:** 编辑资源文件 | Edit asset files. ([237fe1f](https://github.com/Zuoqiu-Yingyi/siyuan-plugin-webview/commit/237fe1f183fb6abd509a51c471d6a147e2013f3c))
+* **monaco-editor:** 鼠标事件触发编辑器打开 | Mouse event triggers editor open. ([090caee](https://github.com/Zuoqiu-Yingyi/siyuan-plugin-webview/commit/090caee7680ad2c5ba45a598b647982a779c3921))
+* **webview:** 添加在屏幕中间显示新窗口功能 | Add the function of displaying new windows in the middle of the screen. ([b1ff7a8](https://github.com/Zuoqiu-Yingyi/siyuan-plugin-webview/commit/b1ff7a8f98c6760fbc8c15132ec6b71de6aeaa23))
+* **webview:** 超链接添加 `在新页签中打开` 菜单项 | Hyperlinks add `Open in new tab` menu item. ([de8a6eb](https://github.com/Zuoqiu-Yingyi/siyuan-plugin-webview/commit/de8a6ebf51b92e509aceb345628589598be6b3b6))
+* 添加文件资源管理面板 | Add file resource management panel. ([972c513](https://github.com/Zuoqiu-Yingyi/siyuan-plugin-webview/commit/972c5133dfbfe9518be9b0071b95424f41a59dac))
+
+
+### Bug Fixes
+
+* **custom-block:** 修复列表导图视图滚动条异常问题 | Fix the issue of abnormal scroll bar in list mind-map view. ([08c6e95](https://github.com/Zuoqiu-Yingyi/siyuan-plugin-webview/commit/08c6e9531e75d71421a924728cf2b518ded845cf))
+* **monaco-editor:** 修复拖动页签分栏时编辑器无法重新加载问题 | Fix the issue that the editor cannot be reloaded when dragging the tab to split the screen. ([6f16d87](https://github.com/Zuoqiu-Yingyi/siyuan-plugin-webview/commit/6f16d87cddf7c1e3e716b9dd4cbaca9454821168))
+* **webview:** 修复 `#` 链接无法跳转问题 | Fix the issue that `#` link cannot jump. ([94cd77d](https://github.com/Zuoqiu-Yingyi/siyuan-plugin-webview/commit/94cd77dd09f4613cba546f9f54714591ee9d5eed))
+
+
+### Performance Improvements
+
+* **monaco-editor:** 优化编辑器另存为选项 | Optimize editor save as option. ([f03bc1e](https://github.com/Zuoqiu-Yingyi/siyuan-plugin-webview/commit/f03bc1e02c9a3040205dba56f57f4bfa242d008e))
+* **monaco-editor:** 支持使用设置项控制上下文菜单 | Support using setting items to control context menus. ([b91fc63](https://github.com/Zuoqiu-Yingyi/siyuan-plugin-webview/commit/b91fc6363c9dd804851caf5ce7651b9898ef5ade))
+* **webview:** 优化开发者工具 | Optimize developer tools. ([8a27a30](https://github.com/Zuoqiu-Yingyi/siyuan-plugin-webview/commit/8a27a3053d6668863e418cc02c4360a74bab4998))
+
+
+### Code Refactoring
+
+* **components:** 优化 BlockIcon 组件 | Optimize BlockIcon component. ([a1669ff](https://github.com/Zuoqiu-Yingyi/siyuan-plugin-webview/commit/a1669ff9fccb58e4a0e82e19ed2948bc68abb6b5))
+* **monaco-editor:** 调整文件资源管理器图标与提示文本 | Adjust the icon and prompt text of the file explorer. ([32fff26](https://github.com/Zuoqiu-Yingyi/siyuan-plugin-webview/commit/32fff26498754350c7cc4304fc37aca9425c9c8f))
+* **monaco-editor:** 重构侧边栏组件 | Refactor sidebar component. ([6f9b136](https://github.com/Zuoqiu-Yingyi/siyuan-plugin-webview/commit/6f9b1365204428384491dfe47dabb66baa791483))
+* **webview:** 调整 Webview 组件结构 | Adjust the structure of the Webview component. ([8de39c3](https://github.com/Zuoqiu-Yingyi/siyuan-plugin-webview/commit/8de39c3fb249a6c17b31eddbe80b4fc13a953901))
+
 ## [1.3.0](https://github.com/Zuoqiu-Yingyi/siyuan-plugin-webview/compare/v1.2.0...v1.3.0) (2023-07-13)
 
 
