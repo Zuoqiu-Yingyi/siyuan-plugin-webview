@@ -243,9 +243,9 @@
                         slot="input"
                         type={ItemType.checkbox}
                         settingKey="Checkbox"
-                        settingValue={config.tab.open.targets.hyperlink.editor}
+                        settingValue={config.tab.open.targets.hyperlink.editor.enable}
                         on:changed={e => {
-                            config.tab.open.targets.hyperlink.editor = e.detail.value;
+                            config.tab.open.targets.hyperlink.editor.enable = e.detail.value;
                             updated();
                         }}
                     />
@@ -260,9 +260,9 @@
                         slot="input"
                         type={ItemType.checkbox}
                         settingKey="Checkbox"
-                        settingValue={config.tab.open.targets.hyperlink.other}
+                        settingValue={config.tab.open.targets.hyperlink.other.enable}
                         on:changed={e => {
-                            config.tab.open.targets.hyperlink.other = e.detail.value;
+                            config.tab.open.targets.hyperlink.other.enable = e.detail.value;
                             updated();
                         }}
                     />
@@ -407,6 +407,23 @@
                         limits={{ min: 240, max: 8640, step: 40 }}
                         on:changed={e => {
                             config.window.params.height = e.detail.value;
+                            updated();
+                        }}
+                    />
+                </Item>
+
+                <!-- 窗口居中 -->
+                <Item
+                    title={i18n.settings.window.center.title}
+                    text={i18n.settings.window.center.description}
+                >
+                    <Input
+                        slot="input"
+                        type={ItemType.checkbox}
+                        settingKey="center"
+                        settingValue={config.window.params.center}
+                        on:changed={e => {
+                            config.window.params.center = e.detail.value;
                             updated();
                         }}
                     />

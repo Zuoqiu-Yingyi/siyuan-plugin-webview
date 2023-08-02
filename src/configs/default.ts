@@ -73,6 +73,10 @@ export const DEFAULT_CONFIG: IConfig = {
                     enable: true,
                     prefix: "//",
                 },
+                "#": { // URL hash
+                    enable: false,
+                    prefix: "#",
+                },
             },
         },
     },
@@ -132,6 +136,7 @@ export const DEFAULT_CONFIG: IConfig = {
         params: {
             width: 800,
             height: 600,
+            center: false,
             frame: true,
             alwaysOnTop: true,
             autoHideMenuBar: true,
