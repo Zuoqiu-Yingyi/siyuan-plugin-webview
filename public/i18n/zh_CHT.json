@@ -16,6 +16,10 @@
     "openMobildWindow": {
       "label": "打開思源移動端窗口"
     },
+    "openNewTab": {
+      "label": "打開新頁簽",
+      "title": "新頁簽"
+    },
     "openTab": {
       "label": "在新頁簽中打開"
     },
@@ -93,7 +97,8 @@
         "description": "默認在新窗口中打開的思源編輯器類型",
         "options": {
           "desktop": "桌面端編輯器",
-          "mobile": "移動端編輯器"
+          "mobile": "移動端編輯器",
+          "window": "原生多窗口編輯器"
         },
         "title": "編輯器類型"
       },
