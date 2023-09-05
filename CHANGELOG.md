@@ -1,5 +1,26 @@
 # Changelog
 
+## [1.3.2](https://github.com/Zuoqiu-Yingyi/siyuan-plugin-webview/compare/v1.3.1...v1.3.2) (2023-09-05)
+
+
+### Build System
+
+* 更新依赖项 | Update dependencies. ([c5e8591](https://github.com/Zuoqiu-Yingyi/siyuan-plugin-webview/commit/c5e85919cafd6e1ba76a27a0f46e1826a6909e09))
+
+
+### Miscellaneous
+
+* **webview:** release v1.3.2 ([977f97b](https://github.com/Zuoqiu-Yingyi/siyuan-plugin-webview/commit/977f97b6c70c52aa34ce957ffc92279f994d1968))
+
+
+### Features
+
+* **jupyter-client:** 添加命令 `运行所选代码块` | Add command `Run selected cells`. ([1c6dde5](https://github.com/Zuoqiu-Yingyi/siyuan-plugin-webview/commit/1c6dde5d8011845eb0f7a3cefd2bb57d6f4c0db4))
+* **open-api:** 添加 `client` 与 `fs` 属性 | Add `client` and `fs` properties. ([dd427fa](https://github.com/Zuoqiu-Yingyi/siyuan-plugin-webview/commit/dd427fafeac821f19f6fbeb690fc08cfb0ff466d))
+* **webview:** 添加使用原生窗口编辑器打开思源块的功能 | Add the function of opening SiYuan block with native window editor. ([f3fc36b](https://github.com/Zuoqiu-Yingyi/siyuan-plugin-webview/commit/f3fc36bff9b8a73449ed296e77d7d71ad2501faa))
+* **webview:** 添加使用原生窗口编辑器打开思源块的功能 | Add the function of opening SiYuan block with native window editor. ([c0d5e4f](https://github.com/Zuoqiu-Yingyi/siyuan-plugin-webview/commit/c0d5e4f2a9c09a4d92fd1ac6e33e175daa11945e))
+* **webview:** 添加打开新标签页功能 | Add the function of opening a new tab. ([34a610c](https://github.com/Zuoqiu-Yingyi/siyuan-plugin-webview/commit/34a610c75adcad244040e9842937a136773128f9))
+
 ## [1.3.1](https://github.com/Zuoqiu-Yingyi/siyuan-plugin-webview/compare/v1.3.0...v1.3.1) (2023-08-02)
 
 
