@@ -1,5 +1,29 @@
 # Changelog
 
+## [1.4.0](https://github.com/Zuoqiu-Yingyi/siyuan-plugin-webview/compare/v1.3.2...v1.4.0) (2023-10-21)
+
+
+### Miscellaneous
+
+* **webview:** release v1.4.0 ([16c60a3](https://github.com/Zuoqiu-Yingyi/siyuan-plugin-webview/commit/16c60a31e89a04813b2cdd1a69d240897429c2b8))
+
+
+### Features
+
+* **keepass:** 添加打开 KeeWeb 的方案 | Add the scheme of opening KeeWeb. ([baf6c60](https://github.com/Zuoqiu-Yingyi/siyuan-plugin-webview/commit/baf6c600a5fd4907b8ca0b9274f282c783d81b84))
+* **webview:** 添加图片菜单 | Add image menu. ([bdf7ee6](https://github.com/Zuoqiu-Yingyi/siyuan-plugin-webview/commit/bdf7ee628b61c0bd04c7ba395a8dfb2ccc416dc1))
+* **webview:** 添加在当前页签中打开功能 | Add open in current tab function. ([42f2f39](https://github.com/Zuoqiu-Yingyi/siyuan-plugin-webview/commit/42f2f39a39b3d52cdb3517bfc893fcc7f92d7a89))
+* **webview:** 添加块资源打开菜单项 | Add block resource open menu items. ([c0bb54f](https://github.com/Zuoqiu-Yingyi/siyuan-plugin-webview/commit/c0bb54f80cdc8f5ee7dd523b7a4b8352bca70000))
+* **webview:** 添加复制图片功能 | Add copy image function. ([cd914ed](https://github.com/Zuoqiu-Yingyi/siyuan-plugin-webview/commit/cd914ed1dbd7951c5f3082b429f2e30b599e17c0))
+* **webview:** 添加网页页面中的上下文菜单 | Add context-menu in webview. ([63ca18f](https://github.com/Zuoqiu-Yingyi/siyuan-plugin-webview/commit/63ca18fdf4c90b849aa94bf086b9165fcfb761af))
+* **webview:** 添加资源文件菜单 | Add resource file menu. ([191aa7c](https://github.com/Zuoqiu-Yingyi/siyuan-plugin-webview/commit/191aa7cb447eb4d72c7c2063ea5ec4b4814753be))
+
+
+### Bug Fixes
+
+* **webview:** 修复 Markdown 超链接格式问题 | Fix Markdown hyperlink format issue. ([45ca8c9](https://github.com/Zuoqiu-Yingyi/siyuan-plugin-webview/commit/45ca8c9fc0b2107d5be314f772b079b01bfc2f9b))
+* **webview:** 修复菜单项打开移动端窗口问题 | Fix the issue that the menu item opens the mobile window. ([de4b8f9](https://github.com/Zuoqiu-Yingyi/siyuan-plugin-webview/commit/de4b8f9bfc6431095cf4f88d3ae0721e422b6bff))
+
 ## [1.3.2](https://github.com/Zuoqiu-Yingyi/siyuan-plugin-webview/compare/v1.3.1...v1.3.2) (2023-09-05)
 
 
