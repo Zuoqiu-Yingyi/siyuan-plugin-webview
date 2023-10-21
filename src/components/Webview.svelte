@@ -24,6 +24,12 @@
     import { TooltipsDirection } from "@workspace/components/siyuan/misc/tooltips";
     import { FLAG_ELECTRON } from "@workspace/utils/env/native-front-end";
     import { isStaticPathname } from "@workspace/utils/siyuan/url";
+    import { washMenuItems } from "@workspace/utils/siyuan/menu/wash";
+    import { trimPrefix } from "@workspace/utils/misc/string";
+    import { escapeHTML } from "@workspace/utils/misc/html";
+    import { base64ToDataURL } from "@workspace/utils/misc/dataurl";
+    import clipboard from "@workspace/utils/electron/clipboard";
+    import { nativeImage } from "@workspace/utils/electron";
 
     import type siyuan from "siyuan";
     import type WebviewPlugin from "@/index";
@@ -40,11 +46,13 @@
 
     const i18n = plugin.i18n as unknown as I18N;
 
+    let menu: InstanceType<typeof plugin.siyuan.Menu> | undefined;
+
     let fullscreen = false; // 是否为全屏模式
     let can_back = false; // 能否转到上一页
     let can_forward = false; // 能否转到下一页
     let loading = false; // 页面是否正在加载
-    let address = decodeURI(src); // 地址栏
+    let address = globalThis.decodeURIComponent(src); // 地址栏
     let devtools_opened = false; // 开发者工具是否已打开
 
     let iframe: HTMLIFrameElement; // iframe 标签
@@ -55,17 +63,17 @@
     let status = ""; // 状态栏内容
 
     /* 加载 URL */
-    function loadURL(address: string): void {
+    function loadURL(href: string): void {
         if (FLAG_ELECTRON) {
             try {
-                webview?.loadURL?.(address, {
+                webview?.loadURL?.(href, {
                     userAgent: useragent,
                 });
             } catch (error) {
-                src = address;
+                src = href;
             }
         } else {
-            src = address;
+            src = href;
         }
     }
 
@@ -98,33 +106,34 @@
 
         if (address) {
             try {
+                var href: string;
                 try {
                     // 判断是否为标准 URL
                     const url = new URL(address);
-                    address = url.href;
+                    href = url.href;
                 } catch (e) {
                     switch (true) {
                         case address.startsWith("//"): {
                             /* `//` 协议 */
                             const url = new URL(`https:${address}`);
-                            address = url.href;
+                            href = url.href;
                             break;
                         }
                         case isStaticPathname(address, false): {
                             /* 是否为思源静态文件服务 */
-                            const url = new URL(`${globalThis.document.baseURI}${address}`);
-                            address = url.href;
+                            const url = new URL(`${globalThis.document.baseURI}${trimPrefix(address, "/")}`);
+                            href = url.href;
                             break;
                         }
                         default: {
                             /* 未设置协议的 URL */
                             const url = new URL(`https://${address}`);
-                            address = url.href;
+                            href = url.href;
                             break;
                         }
                     }
                 }
-                loadURL(address);
+                loadURL(href);
             } catch (error) {
                 plugin.logger.warn(error);
                 plugin.siyuan.showMessage(`${plugin.name}:\nURL <code class="fn__code">${address}</code> ${i18n.message.nonStandardURL}\n`, undefined, "error");
@@ -173,7 +182,7 @@
             // plugin.logger.debug(e)
             /* 更新地址栏地址 */
             if (e.isMainFrame) {
-                address = decodeURI(e.url);
+                address = globalThis.decodeURIComponent(e.url);
                 tab.data.href = e.url;
             }
 
@@ -276,7 +285,7 @@
             // plugin.logger.debug(e);
 
             if (e.url) {
-                status = e.url;
+                status = globalThis.decodeURIComponent(e.url);
                 if (!status_display) {
                     status_display = true;
                 }
@@ -291,14 +300,583 @@
          */
         webview?.addEventListener?.("context-menu", e => {
             plugin.logger.debug(e);
+            const { params } = e;
+            const title = params.titleText || params.linkText || params.altText || params.suggestedFilename;
 
-            /* 在超链接上激活上下文菜单(右键点击/键盘上下文键) */
-            if (e.params.linkURL) {
-                // TODO: 添加思源菜单以操作超链接
-                plugin.openWebviewTab(e.params.linkURL, e.params.titleText || e.params.linkText || e.params.altText);
+            // 添加右键菜单
+            const items: siyuan.IMenuItemOption[] = [];
+
+            function buildOpenMenuItems(url: string, title: string, action: string, current: boolean = true): siyuan.IMenuItemOption[] {
+                const items: siyuan.IMenuItemOption[] = [];
+
+                if (current) {
+                    /* 在当前页签中打开 */
+                    items.push({
+                        icon: "icon-webview-click",
+                        label: i18n.menu.openTabCurrent.label,
+                        action,
+                        click: () => loadURL(url),
+                    });
+
+                    items.push({ type: "separator" });
+                }
+
+                /* 在新页签中打开 */
+                items.push({
+                    icon: "iconAdd",
+                    label: i18n.menu.openTab.label,
+                    action,
+                    click: () => plugin.openWebviewTab(url, title),
+                });
+
+                /* 在后台页签中打开 */
+                items.push({
+                    icon: "iconMin",
+                    label: i18n.menu.openTabBackground.label,
+                    action,
+                    click: () => plugin.openWebviewTab(url, title, undefined, { keepCursor: true }),
+                });
+
+                /* 在页签右侧打开 */
+                items.push({
+                    icon: "iconLayoutRight",
+                    label: i18n.menu.openTabRight.label,
+                    action,
+                    click: () => plugin.openWebviewTab(url, title, undefined, { position: "right" }),
+                });
+
+                /* 在页签下侧打开 */
+                items.push({
+                    icon: "iconLayoutBottom",
+                    label: i18n.menu.openTabBottom.label,
+                    action,
+                    click: () => plugin.openWebviewTab(url, title, undefined, { position: "bottom" }),
+                });
+
+                items.push({ type: "separator" });
+
+                /* 在新窗口打开 */
+                items.push({
+                    icon: "iconOpenWindow",
+                    label: i18n.menu.openByNewWindow.label,
+                    action,
+                    click: (_element, event) => (
+                        plugin.openWebpageWindow(url, title, {
+                            screenX: event.screenX,
+                            screenY: event.screenY,
+                        }),
+                        null
+                    ),
+                });
+
+                return items;
+            }
+
+            function buildCopyMenuItems(params: Electron.Params): siyuan.IMenuItemOption[] {
+                const items: siyuan.IMenuItemOption[] = [];
+
+                /* 复制链接地址 */
+                if (params.linkURL) {
+                    items.push({
+                        icon: "iconLink",
+                        label: i18n.menu.copyLinkAddress.label,
+                        action: "iconLink",
+                        click: () => clipboard.writeText(params.linkURL),
+                    });
+                }
+
+                /* 复制资源地址 */
+                if (params.srcURL) {
+                    items.push({
+                        icon: "iconLink",
+                        label: i18n.menu.copyResourceAddress.label,
+                        action: "iconCloud",
+                        click: () => clipboard.writeText(params.srcURL),
+                    });
+                }
+
+                /* 复制框架地址 */
+                if (params.frameURL) {
+                    items.push({
+                        icon: "iconLink",
+                        label: i18n.menu.copyFrameAddress.label,
+                        action: "iconLayout",
+                        click: () => clipboard.writeText(params.frameURL),
+                    });
+                }
+
+                /* 复制页面地址 */
+                if (params.pageURL) {
+                    items.push({
+                        icon: "iconLink",
+                        label: i18n.menu.copyPageAddress.label,
+                        action: "iconFile",
+                        click: () => clipboard.writeText(params.pageURL),
+                    });
+                }
+
+                items.push({ type: "separator" });
+
+                /* 复制标题 */
+                if (params.titleText) {
+                    items.push({
+                        icon: "icon-webview-title",
+                        label: i18n.menu.copyTitle.label,
+                        click: () => clipboard.writeText(params.titleText),
+                    });
+                }
+
+                /* 复制描述 */
+                if (params.altText) {
+                    items.push({
+                        icon: "iconInfo",
+                        label: i18n.menu.copyAlt.label,
+                        click: () => clipboard.writeText(params.altText),
+                    });
+                }
+
+                /* 复制锚文本 */
+                if (params.linkText) {
+                    items.push({
+                        icon: "icon-webview-anchor",
+                        label: i18n.menu.copyText.label,
+                        click: () => clipboard.writeText(params.linkText),
+                    });
+                }
+
+                /* 复制文件名 */
+                if (params.suggestedFilename) {
+                    items.push({
+                        icon: "iconN",
+                        label: i18n.menu.copyFileName.label,
+                        click: () => clipboard.writeText(params.suggestedFilename),
+                    });
+                }
+
+                return items;
+            }
+
+            function buildMarkdownLink(text: string, url: string, title: string): string {
+                text = text || "🔗";
+                const markdown: string[] = [];
+                markdown.push("[");
+                markdown.push(text.replaceAll("]", "\\]").replaceAll("\n", ""));
+                markdown.push("](");
+                markdown.push(url);
+                if (title) {
+                    markdown.push(` "${title.replaceAll("\n", "").replaceAll("&", "&amp;").replaceAll('"', "&quot;")}"`);
+                }
+                markdown.push(")");
+                return markdown.join("");
+            }
+
+            function getValidTexts(...args: string[]): string[] {
+                return args.filter(text => !!text);
+            }
+
+            /* 复制划选内容 */
+            if (params.selectionText) {
+                items.push({
+                    icon: "icon-webview-select",
+                    label: i18n.menu.copySelectionText.label,
+                    click: () => clipboard.writeText(params.selectionText),
+                });
+                items.push({ type: "separator" });
+            }
+
+            switch (params.mediaType) {
+                case "none":
+                case "file":
+                case "canvas":
+                case "plugin":
+                default: {
+                    switch (true) {
+                        case !!params.linkURL: {
+                            items.push(...buildOpenMenuItems(params.linkURL, title, "iconLink"));
+
+                            items.push({ type: "separator" });
+
+                            /* 复制链接 (富文本) */
+                            items.push({
+                                icon: "iconLink",
+                                label: i18n.menu.copyLink.label,
+                                accelerator: escapeHTML("<a>"),
+                                click: () => {
+                                    const a = globalThis.document.createElement("a");
+                                    a.href = params.linkURL;
+                                    a.title = params.titleText;
+                                    a.innerText = params.linkText;
+                                    clipboard.writeHTML(a.outerHTML);
+                                },
+                            });
+
+                            /* 复制链接 (HTML) */
+                            items.push({
+                                icon: "iconHTML5",
+                                label: i18n.menu.copyLink.label,
+                                accelerator: "HTML",
+                                click: () => {
+                                    const a = globalThis.document.createElement("a");
+                                    a.href = params.linkURL;
+                                    a.title = params.titleText;
+                                    a.innerText = params.linkText;
+                                    clipboard.writeText(a.outerHTML);
+                                },
+                            });
+
+                            /* 复制链接 (Markdown) */
+                            items.push({
+                                icon: "iconMarkdown",
+                                label: i18n.menu.copyLink.label,
+                                accelerator: "Markdown",
+                                click: () => {
+                                    const texts = getValidTexts(params.linkText, params.altText, params.suggestedFilename, params.titleText);
+                                    clipboard.writeText(
+                                        buildMarkdownLink(
+                                            texts.shift(), //
+                                            params.linkURL, //
+                                            texts.pop(), //
+                                        ),
+                                    );
+                                },
+                            });
+                            break;
+                        }
+                        case !!params.frameURL: {
+                            items.push(...buildOpenMenuItems(params.frameURL, title, "iconLayout"));
+
+                            items.push({ type: "separator" });
+
+                            /* 复制框架 (富文本) */
+                            items.push({
+                                icon: "iconLayout",
+                                label: i18n.menu.copyFrame.label,
+                                accelerator: escapeHTML("<iframe>"),
+                                click: () => {
+                                    const iframe = globalThis.document.createElement("iframe");
+                                    iframe.src = params.frameURL;
+                                    iframe.title = params.titleText;
+                                    clipboard.writeHTML(iframe.outerHTML);
+                                },
+                            });
+
+                            /* 复制框架 (HTML) */
+                            items.push({
+                                icon: "iconHTML5",
+                                label: i18n.menu.copyFrame.label,
+                                accelerator: "HTML",
+                                click: () => {
+                                    const iframe = globalThis.document.createElement("iframe");
+                                    iframe.src = params.frameURL;
+                                    iframe.title = params.titleText;
+                                    clipboard.writeText(iframe.outerHTML);
+                                },
+                            });
+
+                            /* 复制框架 (Markdown) */
+                            items.push({
+                                icon: "iconMarkdown",
+                                label: i18n.menu.copyFrame.label,
+                                accelerator: "Markdown",
+                                click: () => {
+                                    const texts = getValidTexts(
+                                        params.linkText, //
+                                        params.altText, //
+                                        params.suggestedFilename, //
+                                        params.titleText, //
+                                    );
+                                    clipboard.writeText(
+                                        buildMarkdownLink(
+                                            texts.shift(), //
+                                            params.frameURL, //
+                                            texts.pop(), //
+                                        ),
+                                    );
+                                },
+                            });
+                            break;
+                        }
+                        default: {
+                            items.push(...buildOpenMenuItems(params.pageURL, title, "iconFile", false));
+
+                            items.push({ type: "separator" });
+
+                            /* 复制页面链接 (富文本) */
+                            items.push({
+                                icon: "iconFile",
+                                label: i18n.menu.copyPage.label,
+                                accelerator: escapeHTML("<a>"),
+                                click: () => {
+                                    const a = globalThis.document.createElement("a");
+                                    a.href = params.pageURL;
+                                    a.title = params.titleText;
+                                    clipboard.writeHTML(a.outerHTML);
+                                },
+                            });
+
+                            /* 复制页面链接 (HTML) */
+                            items.push({
+                                icon: "iconHTML5",
+                                label: i18n.menu.copyPage.label,
+                                accelerator: "HTML",
+                                click: () => {
+                                    const a = globalThis.document.createElement("a");
+                                    a.href = params.pageURL;
+                                    a.title = params.titleText;
+                                    clipboard.writeText(a.outerHTML);
+                                },
+                            });
+
+                            /* 复制页面链接 (Markdown) */
+                            items.push({
+                                icon: "iconMarkdown",
+                                label: i18n.menu.copyPage.label,
+                                accelerator: "Markdown",
+                                click: () => {
+                                    const texts = getValidTexts(
+                                        params.linkText, //
+                                        params.altText, //
+                                        params.suggestedFilename, //
+                                        params.titleText, //
+                                    );
+                                    clipboard.writeText(
+                                        buildMarkdownLink(
+                                            texts.shift(), //
+                                            params.pageURL, //
+                                            texts.pop(), //
+                                        ),
+                                    );
+                                },
+                            });
+                            break;
+                        }
+                    }
+                    break;
+                }
+
+                /* 图片 */
+                case "image": {
+                    items.push(...buildOpenMenuItems(params.linkURL, title, "iconImage"));
+
+                    items.push({ type: "separator" });
+
+                    /* 复制图片 (图片文件) */
+                    items.push({
+                        icon: "iconImage",
+                        label: i18n.menu.copyImage.label,
+                        click: () => {
+                            setTimeout(async () => {
+                                try {
+                                    const response = await plugin.client.forwardProxy({
+                                        headers: [],
+                                        method: "GET",
+                                        responseEncoding: "base64",
+                                        timeout: 60_000,
+                                        url: params.srcURL,
+                                    });
+                                    if (200 <= response.data.status && response.data.status < 300) {
+                                        const data_url = base64ToDataURL(response.data.body, response.data.contentType);
+                                        const image = nativeImage.createFromDataURL(data_url);
+                                        clipboard.writeImage(image);
+                                    }
+                                } catch (error) {
+                                    plugin.logger.warn(error);
+                                } finally {
+                                    menu?.close();
+                                }
+                            });
+                            return true;
+                        },
+                    });
+
+                    /* 复制图片 (富文本) */
+                    items.push({
+                        icon: "iconImage",
+                        label: i18n.menu.copyImage.label,
+                        accelerator: escapeHTML("<img>"),
+                        click: () => {
+                            const img = globalThis.document.createElement("img");
+                            img.src = params.srcURL;
+                            img.title = params.titleText;
+                            img.alt = params.altText;
+                            clipboard.writeHTML(img.outerHTML);
+                        },
+                    });
+
+                    /* 复制图片 (HTML) */
+                    items.push({
+                        icon: "iconHTML5",
+                        label: i18n.menu.copyImage.label,
+                        accelerator: "HTML",
+                        click: () => {
+                            const img = globalThis.document.createElement("img");
+                            img.src = params.srcURL;
+                            img.title = params.titleText;
+                            img.alt = params.altText;
+                            clipboard.writeText(img.outerHTML);
+                        },
+                    });
+
+                    /* 复制图片 (Markdown) */
+                    items.push({
+                        icon: "iconMarkdown",
+                        label: i18n.menu.copyImage.label,
+                        accelerator: "Markdown",
+                        click: () => {
+                            const texts = getValidTexts(
+                                params.altText, //
+                                params.linkText, //
+                                params.suggestedFilename, //
+                                params.titleText, //
+                            );
+                            clipboard.writeText(
+                                buildMarkdownLink(
+                                    texts.shift(), //
+                                    params.srcURL, //
+                                    texts.pop(), //
+                                ),
+                            );
+                        },
+                    });
+                    break;
+                }
+
+                /* 音频 */
+                case "audio": {
+                    items.push(...buildOpenMenuItems(params.srcURL, title, "iconRecord"));
+
+                    items.push({ type: "separator" });
+
+                    /* 复制音频 (富文本) */
+                    items.push({
+                        icon: "iconRecord",
+                        label: i18n.menu.copyAudio.label,
+                        accelerator: escapeHTML("<audio>"),
+                        click: () => {
+                            const audio = globalThis.document.createElement("audio");
+                            audio.src = params.srcURL;
+                            audio.title = params.titleText;
+                            clipboard.writeHTML(audio.outerHTML);
+                        },
+                    });
+
+                    /* 复制音频 (HTML) */
+                    items.push({
+                        icon: "iconHTML5",
+                        label: i18n.menu.copyAudio.label,
+                        accelerator: "HTML",
+                        click: () => {
+                            const audio = globalThis.document.createElement("audio");
+                            audio.src = params.srcURL;
+                            audio.title = params.titleText;
+                            clipboard.writeText(audio.outerHTML);
+                        },
+                    });
+
+                    /* 复制音频 (Markdown) */
+                    items.push({
+                        icon: "iconMarkdown",
+                        label: i18n.menu.copyAudio.label,
+                        accelerator: "Markdown",
+                        click: () => {
+                            const texts = getValidTexts(
+                                params.altText, //
+                                params.linkText, //
+                                params.suggestedFilename, //
+                                params.titleText, //
+                            );
+                            clipboard.writeText(
+                                buildMarkdownLink(
+                                    texts.shift(), //
+                                    params.srcURL, //
+                                    texts.pop(), //
+                                ),
+                            );
+                        },
+                    });
+                    break;
+                }
+
+                /* 视频 */
+                case "video": {
+                    items.push(...buildOpenMenuItems(params.srcURL, title, "iconVideo"));
+
+                    items.push({ type: "separator" });
+
+                    /* 复制视频 (富文本) */
+                    items.push({
+                        icon: "iconVideo",
+                        label: i18n.menu.copyVideo.label,
+                        accelerator: escapeHTML("<video>"),
+                        click: () => {
+                            const video = globalThis.document.createElement("video");
+                            video.src = params.srcURL;
+                            video.title = params.titleText;
+                            clipboard.writeHTML(video.outerHTML);
+                        },
+                    });
+
+                    /* 复制视频 (HTML) */
+                    items.push({
+                        icon: "iconHTML5",
+                        label: i18n.menu.copyVideo.label,
+                        accelerator: "HTML",
+                        click: () => {
+                            const video = globalThis.document.createElement("video");
+                            video.src = params.srcURL;
+                            video.title = params.titleText;
+                            clipboard.writeText(video.outerHTML);
+                        },
+                    });
+
+                    /* 复制视频 (Markdown) */
+                    items.push({
+                        icon: "iconMarkdown",
+                        label: i18n.menu.copyVideo.label,
+                        accelerator: "Markdown",
+                        click: () => {
+                            const texts = getValidTexts(
+                                params.altText, //
+                                params.linkText, //
+                                params.suggestedFilename, //
+                                params.titleText, //
+                            );
+                            clipboard.writeText(
+                                buildMarkdownLink(
+                                    texts.shift(), //
+                                    params.srcURL, //
+                                    texts.pop(), //
+                                ),
+                            );
+                        },
+                    });
+                    break;
+                }
+            }
+
+            /* 复制指定字段 */
+            items.push({ type: "separator" });
+            items.push(...buildCopyMenuItems(params));
+
+            const _items = washMenuItems(items);
+            if (_items.length > 0) {
+                menu = new plugin.siyuan.Menu();
+                _items.forEach(item => menu.addItem(item));
+                menu.open({
+                    x: params.x,
+                    y: params.y,
+                });
             }
         });
     });
+
+    function onmouseenter(e: MouseEvent): void {
+        webview_pointer_events_disable = e.button === 0 ? false : true;
+        menu?.close();
+    }
+    function onmouseleave(e: MouseEvent): void {
+        webview_pointer_events_disable = true;
+    }
 </script>
 
 <Tab {fullscreen}>
@@ -382,10 +960,11 @@
 
     <!-- 主体 -->
     <!-- svelte-ignore a11y-no-static-element-interactions -->
+    <!-- svelte-ignore a11y-click-events-have-key-events -->
     <div
         slot="content"
-        on:mouseenter={e => (webview_pointer_events_disable = e.button === 0 ? false : true)}
-        on:mouseleave={() => (webview_pointer_events_disable = true)}
+        on:mouseenter|capture|stopPropagation={onmouseenter}
+        on:mouseleave|capture|stopPropagation={onmouseleave}
         class="content fn__flex fn__flex-1"
     >
         {#if FLAG_ELECTRON}
@@ -442,6 +1021,7 @@
         position: absolute;
         bottom: 0;
         left: 0;
+        z-index: 1;
     }
 
     .pointer-events-disable {
