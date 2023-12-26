@@ -1,5 +1,28 @@
 # Changelog
 
+## [1.4.1](https://github.com/Zuoqiu-Yingyi/siyuan-plugin-webview/compare/v1.4.0...v1.4.1) (2023-12-26)
+
+
+### Build System
+
+* 提取部分依赖至工作空间 | Extract some dependencies to workspace. ([02f6657](https://github.com/Zuoqiu-Yingyi/siyuan-plugin-webview/commit/02f6657091f486cf4354ac4489045443ef036934))
+
+
+### Miscellaneous
+
+* **webview:** release v1.4.1 ([4904d60](https://github.com/Zuoqiu-Yingyi/siyuan-plugin-webview/commit/4904d603408d29d3ad296cea6addab160aa32d6e))
+
+
+### Features
+
+* **webview:** 兼容移动端菜单 | Compatible with mobile menu. ([60e3629](https://github.com/Zuoqiu-Yingyi/siyuan-plugin-webview/commit/60e3629f898501d9119fe7ec43f5def4248e1d98))
+* **webview:** 支持使用新页签/新窗口打开资源文件超链接 | support opening assets files hyperlinks in new tabs/windows ([233908e](https://github.com/Zuoqiu-Yingyi/siyuan-plugin-webview/commit/233908e87f16b45dfffd344850f7498658cd79f2))
+
+
+### Performance Improvements
+
+* **webview:** 改进上下文菜单关闭交互 | Improve context menu close interaction. ([8bcb6df](https://github.com/Zuoqiu-Yingyi/siyuan-plugin-webview/commit/8bcb6df0a9fc0b13ff5ac514dffd2a5e225016ed))
+
 ## [1.4.0](https://github.com/Zuoqiu-Yingyi/siyuan-plugin-webview/compare/v1.3.2...v1.4.0) (2023-10-21)
 
 
