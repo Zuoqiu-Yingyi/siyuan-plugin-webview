@@ -955,7 +955,7 @@ export default class WebviewPlugin extends siyuan.Plugin {
     /* 打开标签页 */
     protected readonly openTabEventListener = (e: Event) => {
         try {
-            this.logger.debug(e);
+            // this.logger.debug(e);
 
             if (!(e instanceof MouseEvent))
                 return;
@@ -1011,7 +1011,7 @@ export default class WebviewPlugin extends siyuan.Plugin {
     /* 打开窗口 */
     protected readonly openWindowEventListener = (e: Event) => {
         try {
-            this.logger.debug(e);
+            // this.logger.debug(e);
 
             if (!(e instanceof MouseEvent))
                 return;

@@ -217,11 +217,14 @@
         }
     },
     "webview": {
+        "developerTools": "Developer tools",
+        "fullscreenMode": "Full-screen mode",
         "closeDevTools": "Close developer tools",
         "enterFullscreen": "Enter full-screen mode",
         "exitFullscreen": "Exit full-screen mode",
         "goBackOnePage": "Go back one page",
         "goForwardOnePage": "Go forward one page",
+        "more": "More",
         "openDevTools": "Open developer tools",
         "openWithDefaultProgram": "Open with default program",
         "openWithNewWindow": "Open with a new window",
