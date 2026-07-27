@@ -1,0 +1,13 @@
+public/plugin.json
+  ai_agent 5
+release-please-config.json
+  ai_agent 4
+package.json
+  ai_agent 4
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.38-trip",
+  "base_commit_sha": "e3a6be42fd0d9cbd5f4aae29bc5086ebbcd84764",
+  "prompts": {}
+}
