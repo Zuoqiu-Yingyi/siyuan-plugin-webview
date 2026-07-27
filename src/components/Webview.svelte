@@ -1,16 +1,16 @@
 <!--
  Copyright (C) 2023 Zuoqiu Yingyi
- 
+
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as
  published by the Free Software Foundation, either version 3 of the
  License, or (at your option) any later version.
- 
+
  This program is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU Affero General Public License for more details.
- 
+
  You should have received a copy of the GNU Affero General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
@@ -19,51 +19,63 @@
     import { onMount } from "svelte";
     import { fade } from "svelte/transition";
 
-    import Tab from "@workspace/components/siyuan/tab/Tab.svelte";
     import BlockIcon from "@workspace/components/siyuan/misc/BlockIcon.svelte";
     import { TooltipsDirection } from "@workspace/components/siyuan/misc/tooltips";
-    import { FLAG_ELECTRON } from "@workspace/utils/env/native-front-end";
-    import { isStaticPathname } from "@workspace/utils/siyuan/url";
-    import { washMenuItems } from "@workspace/utils/siyuan/menu/wash";
-    import { trimPrefix } from "@workspace/utils/misc/string";
-    import { escapeHTML } from "@workspace/utils/misc/html";
-    import { base64ToDataURL } from "@workspace/utils/misc/dataurl";
-    import clipboard from "@workspace/utils/electron/clipboard";
+    import Tab from "@workspace/components/siyuan/tab/Tab.svelte";
     import { nativeImage } from "@workspace/utils/electron";
+    import clipboard from "@workspace/utils/electron/clipboard";
+    import { FLAG_ELECTRON } from "@workspace/utils/env/native-front-end";
+    import { base64ToDataURL } from "@workspace/utils/misc/dataurl";
+    import { escapeHTML } from "@workspace/utils/misc/html";
+    import { trimPrefix } from "@workspace/utils/misc/string";
+    import { washMenuItems } from "@workspace/utils/siyuan/menu/wash";
+    import { isStaticPathname } from "@workspace/utils/siyuan/url";
 
     import type siyuan from "siyuan";
-    import type WebviewPlugin from "@/index";
+
     import type { Electron } from "@workspace/types/electron";
-    import type { I18N } from "@/utils/i18n";
 
-    export let src: string;
-    export let tab: siyuan.ITabModel;
-    export let plugin: InstanceType<typeof WebviewPlugin>;
+    import type WebviewPlugin from "@/index";
 
-    export let title: string = ""; // 页面标题
-    export let useragent: string = plugin.useragent; // 用户代理
-    export let background: string = plugin.background; // 背景
+    interface IProps {
+        src: string;
+        tab: siyuan.Custom;
+        title: string;
+        plugin: InstanceType<typeof WebviewPlugin>;
+    }
 
-    const i18n = plugin.i18n as unknown as I18N;
+    let {
+        src,
+        tab,
+        title = "",
+        plugin,
+    }: IProps = $props();
+
+    const useragent: string = plugin.useragent; // 用户代理
+    const background: string = plugin.background; // 背景
+
+    const i18n = plugin.i18n;
 
     let menu: InstanceType<typeof plugin.siyuan.Menu> | undefined;
 
-    let fullscreen = false; // 是否为全屏模式
-    let can_back = false; // 能否转到上一页
-    let can_forward = false; // 能否转到下一页
-    let loading = false; // 页面是否正在加载
-    let address = globalThis.decodeURIComponent(src); // 地址栏
-    let devtools_opened = false; // 开发者工具是否已打开
+    let fullscreen = $state(false); // 是否为全屏模式
+    let can_back = $state(false); // 能否转到上一页
+    let can_forward = $state(false); // 能否转到下一页
+    let loading = $state(false); // 页面是否正在加载
+    let address = $state(globalThis.decodeURIComponent(src)); // 地址栏
+    let devtools_opened = $state(false); // 开发者工具是否已打开
 
-    let iframe: HTMLIFrameElement; // iframe 标签
-    let webview: Electron.WebviewTag; // webview 标签
-    let webview_pointer_events_disable = false; // 是否禁用 webview 的鼠标事件
+    let iframe: HTMLIFrameElement | null = $state(null); // iframe 标签
+    let webview: Electron.WebviewTag | undefined = $state(undefined); // webview 标签
+    let webview_pointer_events_disable = $state(false); // 是否禁用 webview 的鼠标事件
 
     let mask: HTMLDivElement; // 遮罩
-    let mask_active = false; // 是否激活遮罩
+    let mask_active = $state(false); // 是否激活遮罩
 
-    let status_display = false; // 状态栏显示状态
-    let status = ""; // 状态栏内容
+    let status_display = $state(false); // 状态栏显示状态
+    let status = $state(""); // 状态栏内容
+
+    void iframe;
 
     /* 加载 URL */
     function loadURL(href: string): void {
@@ -72,10 +84,13 @@
                 webview?.loadURL?.(href, {
                     userAgent: useragent,
                 });
-            } catch (error) {
+            }
+            catch (error) {
+                void error;
                 src = href;
             }
-        } else {
+        }
+        else {
             src = href;
         }
     }
@@ -98,23 +113,26 @@
     function onRefreshOrStop() {
         if (loading) {
             webview?.stop?.();
-        } else {
+        }
+        else {
             webview?.reload?.();
         }
     }
 
     /* 地址栏存在来自外部更改 */
-    function onAddressChange(e) {
+    function onAddressChange(_e: Event) {
         // plugin.logger.debug(e);
 
         if (address) {
             try {
-                var href: string;
+                let href: string;
                 try {
                     // 判断是否为标准 URL
                     const url = new URL(address);
                     href = url.href;
-                } catch (e) {
+                }
+                catch (error) {
+                    void error;
                     switch (true) {
                         case address.startsWith("//"): {
                             /* `//` 协议 */
@@ -137,7 +155,8 @@
                     }
                 }
                 loadURL(href);
-            } catch (error) {
+            }
+            catch (error) {
                 plugin.logger.warn(error);
                 plugin.siyuan.showMessage(`${plugin.name}:\nURL <code class="fn__code">${address}</code> ${i18n.message.nonStandardURL}\n`, undefined, "error");
             }
@@ -146,7 +165,7 @@
 
     /* 使用默认程序打开 */
     function onOpenWithDefaultProgram() {
-        global.open(tab.data.href, "_blank");
+        globalThis.open(tab.data.href, "_blank");
     }
 
     /* 在新窗口打开 */
@@ -168,7 +187,8 @@
         if (webview) {
             if (webview?.isDevToolsOpened?.()) {
                 webview?.closeDevTools?.();
-            } else {
+            }
+            else {
                 webview?.openDevTools?.();
             }
         }
@@ -181,7 +201,7 @@
          * REF https://www.electronjs.org/zh/docs/latest/api/webview-tag#event-will-navigate
          * REF https://www.electronjs.org/zh/docs/latest/api/webview-tag#event-did-start-navigation
          */
-        webview?.addEventListener?.("load-commit", e => {
+        webview?.addEventListener?.("load-commit", (e) => {
             // plugin.logger.debug(e)
             /* 更新地址栏地址 */
             if (e.isMainFrame) {
@@ -191,18 +211,18 @@
 
             /* 是否可后退 */
             // REF https://www.electronjs.org/zh/docs/latest/api/webview-tag#webviewcangoback
-            can_back = webview?.canGoBack?.();
+            can_back = webview?.canGoBack?.() ?? false;
 
             /* 是否可前进 */
             // REF https://www.electronjs.org/zh/docs/latest/api/webview-tag#webviewcangoback
-            can_forward = webview?.canGoForward?.();
+            can_forward = webview?.canGoForward?.() ?? false;
         });
 
         /**
          * 更改页签标题
          * REF https://www.electronjs.org/zh/docs/latest/api/webview-tag#%E4%BA%8B%E4%BB%B6-page-title-updated
          */
-        webview?.addEventListener?.("page-title-updated", e => {
+        webview?.addEventListener?.("page-title-updated", (e) => {
             // plugin.logger.debug(e)
             // plugin.logger.debug(tab);
             title = e.title;
@@ -216,7 +236,7 @@
          * 更改页签图标
          * REF https://www.electronjs.org/zh/docs/latest/api/webview-tag#%E4%BA%8B%E4%BB%B6-page-favicon-updated
          */
-        webview?.addEventListener?.("page-favicon-updated", e => {
+        webview?.addEventListener?.("page-favicon-updated", (e) => {
             // plugin.logger.debug(e)
             const favicons = e.favicons;
 
@@ -224,7 +244,7 @@
             tab.tab.headElement.querySelector(".item__graphic")?.remove();
 
             if (favicons.length > 0) {
-                const favicon = favicons[0]; // 图标地址
+                const favicon = favicons[0]!; // 图标地址
                 const iconElement = tab.tab.headElement.querySelector(".item__icon"); // 图标容器
 
                 /* 图标容器不存在或者图标地址更改时插入/更新图标 */
@@ -236,14 +256,16 @@
                     if (iconElement) {
                         // 更新图标
                         iconElement.innerHTML = img;
-                    } else {
+                    }
+                    else {
                         // 插入图标
                         tab.tab.headElement.insertAdjacentHTML("afterbegin", `<span class="item__icon">${img}</span>`);
                     }
                 }
-            } else {
+            }
+            else {
                 /* 设置默认图标 */
-                tab.tab.setDocIcon("🌐".codePointAt(0).toString(16));
+                tab.tab.setDocIcon("🌐".codePointAt(0)!.toString(16));
             }
         });
 
@@ -253,12 +275,12 @@
          * REF https://www.electronjs.org/zh/docs/latest/api/webview-tag#event-did-stop-loading
          */
         /* 开始加载 */
-        webview?.addEventListener?.("did-start-loading", _ => {
+        webview?.addEventListener?.("did-start-loading", (_) => {
             // plugin.logger.debug(e)
             loading = true;
         });
         /* 停止加载 */
-        webview?.addEventListener?.("did-stop-loading", _ => {
+        webview?.addEventListener?.("did-stop-loading", (_) => {
             // plugin.logger.debug(e)
             loading = false;
         });
@@ -267,7 +289,7 @@
          * 开发者工具中打开超链接
          * REF https://www.electronjs.org/zh/docs/latest/api/webview-tag#event-devtools-open-url
          */
-        webview?.addEventListener?.("devtools-open-url", e => {
+        webview?.addEventListener?.("devtools-open-url", (e) => {
             // plugin.logger.debug(e);
             plugin.openWebviewTab(e.url);
         });
@@ -277,14 +299,14 @@
          * REF https://www.electronjs.org/zh/docs/latest/api/webview-tag#event-devtools-opened
          * REF https://www.electronjs.org/zh/docs/latest/api/webview-tag#event-devtools-closed
          */
-        webview?.addEventListener?.("devtools-opened", e => (devtools_opened = true));
-        webview?.addEventListener?.("devtools-closed", e => (devtools_opened = false));
+        webview?.addEventListener?.("devtools-opened", (_e) => (devtools_opened = true));
+        webview?.addEventListener?.("devtools-closed", (_e) => (devtools_opened = false));
 
         /**
          * 焦点为链接时在状态栏显示链接
          * REF https://www.electronjs.org/zh/docs/latest/api/webview-tag#event-update-target-url
          */
-        webview?.addEventListener?.("update-target-url", e => {
+        webview?.addEventListener?.("update-target-url", (e) => {
             // plugin.logger.debug(e);
 
             if (e.url) {
@@ -292,7 +314,8 @@
                 if (!status_display) {
                     status_display = true;
                 }
-            } else {
+            }
+            else {
                 status_display = false;
             }
         });
@@ -301,16 +324,16 @@
          * 上下文菜单(右键触发)
          * REF https://www.electronjs.org/zh/docs/latest/api/webview-tag#event-context-menu
          */
-        webview?.addEventListener?.("context-menu", e => {
+        webview?.addEventListener?.("context-menu", (e) => {
             plugin.logger.debug(e);
             const { params } = e;
             const title = params.titleText || params.linkText || params.altText || params.suggestedFilename;
 
             // 添加右键菜单
-            const items: siyuan.IMenuItemOption[] = [];
+            const items: siyuan.IMenu[] = [];
 
-            function buildOpenMenuItems(url: string, title: string, action: string, current: boolean = true): siyuan.IMenuItemOption[] {
-                const items: siyuan.IMenuItemOption[] = [];
+            function buildOpenMenuItems(url: string, title: string, action: string, current: boolean = true): siyuan.IMenu[] {
+                const items: siyuan.IMenu[] = [];
 
                 if (current) {
                     /* 在当前页签中打开 */
@@ -363,20 +386,17 @@
                     icon: "iconOpenWindow",
                     label: i18n.menu.openByNewWindow.label,
                     action,
-                    click: (_element, event) => (
-                        plugin.openWebpageWindow(url, title, {
-                            screenX: event.screenX,
-                            screenY: event.screenY,
-                        }),
-                        null
-                    ),
+                    click: (_element, event) => void plugin.openWebpageWindow(url, title, {
+                        screenX: event.screenX,
+                        screenY: event.screenY,
+                    }),
                 });
 
                 return items;
             }
 
-            function buildCopyMenuItems(params: Electron.Params): siyuan.IMenuItemOption[] {
-                const items: siyuan.IMenuItemOption[] = [];
+            function buildCopyMenuItems(params: Electron.Params): siyuan.IMenu[] {
+                const items: siyuan.IMenu[] = [];
 
                 /* 复制链接地址 */
                 if (params.linkURL) {
@@ -459,7 +479,7 @@
                 return items;
             }
 
-            function buildMarkdownLink(text: string, url: string, title: string): string {
+            function buildMarkdownLink(text: string | undefined, url: string, title: string | undefined): string {
                 text = text || "🔗";
                 const markdown: string[] = [];
                 markdown.push("[");
@@ -467,14 +487,14 @@
                 markdown.push("](");
                 markdown.push(url);
                 if (title) {
-                    markdown.push(` "${title.replaceAll("\n", "").replaceAll("&", "&amp;").replaceAll('"', "&quot;")}"`);
+                    markdown.push(` "${title.replaceAll("\n", "").replaceAll("&", "&amp;").replaceAll("\"", "&quot;")}"`);
                 }
                 markdown.push(")");
                 return markdown.join("");
             }
 
             function getValidTexts(...args: string[]): string[] {
-                return args.filter(text => !!text);
+                return args.filter((text) => !!text);
             }
 
             /* 复制划选内容 */
@@ -492,6 +512,7 @@
                 case "file":
                 case "canvas":
                 case "plugin":
+                // eslint-disable-next-line default-case-last, no-fallthrough
                 default: {
                     switch (true) {
                         case !!params.linkURL: {
@@ -508,7 +529,7 @@
                                     const a = globalThis.document.createElement("a");
                                     a.href = params.linkURL;
                                     a.title = params.titleText;
-                                    a.innerText = params.linkText;
+                                    a.textContent = params.linkText;
                                     clipboard.writeHTML(a.outerHTML);
                                 },
                             });
@@ -522,7 +543,7 @@
                                     const a = globalThis.document.createElement("a");
                                     a.href = params.linkURL;
                                     a.title = params.titleText;
-                                    a.innerText = params.linkText;
+                                    a.textContent = params.linkText;
                                     clipboard.writeText(a.outerHTML);
                                 },
                             });
@@ -677,14 +698,16 @@
                                         timeout: 60_000,
                                         url: params.srcURL,
                                     });
-                                    if (200 <= response.data.status && response.data.status < 300) {
+                                    if (response.data.status >= 200 && response.data.status < 300) {
                                         const data_url = base64ToDataURL(response.data.body, response.data.contentType);
                                         const image = nativeImage.createFromDataURL(data_url);
                                         clipboard.writeImage(image);
                                     }
-                                } catch (error) {
+                                }
+                                catch (error) {
                                     plugin.logger.warn(error);
-                                } finally {
+                                }
+                                finally {
                                     menu?.close();
                                 }
                             });
@@ -866,11 +889,11 @@
                 menu = new plugin.siyuan.Menu("plugin-webview-menu", () => {
                     mask_active = false;
                 });
-                _items.forEach(item => menu.addItem(item));
+                _items.forEach((item) => menu?.addItem(item));
 
                 mask_active = true;
-                mask.focus();
-                menu.open({
+                mask?.focus();
+                menu?.open({
                     x: params.x,
                     y: params.y,
                 });
@@ -879,12 +902,14 @@
     });
 
     function onmouseenter(e: MouseEvent): void {
-        webview_pointer_events_disable = e.button === 0 ? false : true;
+        e.stopPropagation();
+        webview_pointer_events_disable = e.button !== 0;
     }
     function onmouseleave(e: MouseEvent): void {
+        e.stopPropagation();
         webview_pointer_events_disable = true;
     }
-    function onMaskClick(e: MouseEvent): void {
+    function onMaskClick(_e: MouseEvent): void {
         menu?.close?.();
     }
 </script>
@@ -897,106 +922,106 @@
     >
         <!-- 后退按钮 -->
         <BlockIcon
-            on:click={onGoBack}
-            icon="#iconLeft"
             ariaLabel={i18n.webview.goForwardOnePage}
             disabled={!can_back}
+            icon="#iconLeft"
             tooltipsDirection={TooltipsDirection.se}
+            on:click={onGoBack}
         />
 
         <!-- 前进按钮 -->
         <BlockIcon
-            on:click={onGoForward}
-            icon="#iconRight"
             ariaLabel={i18n.webview.goBackOnePage}
             disabled={!can_forward}
+            icon="#iconRight"
             tooltipsDirection={TooltipsDirection.se}
+            on:click={onGoForward}
         />
 
         <!-- 刷新/终止加载按钮 -->
         <BlockIcon
-            on:click={onRefreshOrStop}
-            icon={loading ? "#iconClose" : "#iconRefresh"}
             ariaLabel={loading ? i18n.webview.stopLoadingThisPage : i18n.webview.reloadCurrentPage}
+            icon={loading ? "#iconClose" : "#iconRefresh"}
             tooltipsDirection={TooltipsDirection.se}
+            on:click={onRefreshOrStop}
         />
 
         <!-- <div class="fn__space" /> -->
 
         <!-- 地址输入框 -->
         <input
-            on:change={onAddressChange}
-            bind:value={address}
             class="b3-text-field fn__flex-1 address-field"
+            onchange={onAddressChange}
             type="url"
+            bind:value={address}
         />
 
         <!-- <div class="fn__space" /> -->
 
         <!-- 使用默认程序(一般为浏览器)打开当前页面链接 -->
         <BlockIcon
-            on:click={onOpenWithDefaultProgram}
-            icon="#iconLanguage"
             ariaLabel={i18n.webview.openWithDefaultProgram}
+            icon="#iconLanguage"
             tooltipsDirection={TooltipsDirection.sw}
+            on:click={onOpenWithDefaultProgram}
         />
 
         <!-- 使用新窗口打开当前页面链接 -->
         <BlockIcon
-            on:click={onOpenWithNewWindow}
-            icon="#iconOpenWindow"
             ariaLabel={i18n.webview.openWithNewWindow}
+            icon="#iconOpenWindow"
             tooltipsDirection={TooltipsDirection.sw}
+            on:click={onOpenWithNewWindow}
         />
 
         <!-- 打开/关闭全屏模式 -->
         <BlockIcon
-            on:click={onEnterOrExitFullscreen}
-            icon={fullscreen ? "#iconFullscreenExit" : "#iconFullscreen"}
-            ariaLabel={fullscreen ? i18n.webview.exitFullscreen : i18n.webview.enterFullscreen}
             active={fullscreen}
+            ariaLabel={fullscreen ? i18n.webview.exitFullscreen : i18n.webview.enterFullscreen}
+            icon={fullscreen ? "#iconFullscreenExit" : "#iconFullscreen"}
             tooltipsDirection={TooltipsDirection.sw}
+            on:click={onEnterOrExitFullscreen}
         />
 
         <!-- 打开/关闭开发者工具 -->
         <BlockIcon
-            on:click={onOpenOrCloseDevTools}
-            icon="#iconBug"
-            ariaLabel={devtools_opened ? i18n.webview.closeDevTools : i18n.webview.openDevTools}
             active={devtools_opened}
+            ariaLabel={devtools_opened ? i18n.webview.closeDevTools : i18n.webview.openDevTools}
+            icon="#iconBug"
             tooltipsDirection={TooltipsDirection.sw}
+            on:click={onOpenOrCloseDevTools}
         />
     </div>
 
     <!-- 主体 -->
-    <!-- svelte-ignore a11y-no-static-element-interactions -->
-    <!-- svelte-ignore a11y-click-events-have-key-events -->
+    <!-- svelte-ignore a11y_no_static_element_interactions -->
+    <!-- svelte-ignore a11y_click_events_have_key_events -->
     <div
         slot="content"
-        on:mouseenter|capture|stopPropagation={onmouseenter}
-        on:mouseleave|capture|stopPropagation={onmouseleave}
         class="content fn__flex fn__flex-1"
+        onmouseenter={onmouseenter}
+        onmouseleave={onmouseleave}
     >
         {#if FLAG_ELECTRON}
             <webview
                 bind:this={webview}
+                style:background
+                class="webview fn__flex-1"
+                class:pointer-events-disable={webview_pointer_events_disable}
+                allowpopups
                 {src}
                 {title}
                 {useragent}
-                style:background
-                class:pointer-events-disable={webview_pointer_events_disable}
-                class="webview fn__flex-1"
-                allowpopups
-            />
+            ></webview>
         {:else}
             <iframe
                 bind:this={iframe}
-                {src}
-                {title}
                 style:background
                 class="fn__flex-1"
                 allowfullscreen
-            />
+                {src}
+                {title}
+            ></iframe>
         {/if}
         {#if status_display}
             <!-- 状态提示 (显示超链接地址) -->
@@ -1013,8 +1038,8 @@
             bind:this={mask}
             class="mask"
             class:mask-active={mask_active}
-            on:click={onMaskClick}
-        />
+            onclick={onMaskClick}
+        ></div>
     </div>
 </Tab>
 
