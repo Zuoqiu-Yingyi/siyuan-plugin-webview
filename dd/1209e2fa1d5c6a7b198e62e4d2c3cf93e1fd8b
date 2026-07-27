@@ -1,0 +1,28 @@
+public/i18n/zh_CN.json
+  ai_agent 221,224
+src/components/Webview.svelte
+  s_c3d60525a5d614::t_132a1bac805d92 219-220,331-332
+  ai_agent 47,49,51,53,62,64-65,72-73,80,110-111,199-216,221-330,344,526-530,1085,1087-1089,1091,1101-1102
+public/i18n/en_US.json
+  s_c3d60525a5d614::t_08a936793d6bf3 227
+  ai_agent 220-221
+public/i18n/zh_CHT.json
+  s_c3d60525a5d614::t_08a936793d6bf3 227
+  ai_agent 221,224
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.38-trip",
+  "base_commit_sha": "dd1209e2fa1d5c6a7b198e62e4d2c3cf93e1fd8b",
+  "prompts": {},
+  "sessions": {
+    "s_c3d60525a5d614": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "3c4eef66-eede-4abf-b918-eeba585e55b6",
+        "model": "claude-glm-5.2"
+      },
+      "human_author": "Yingyi / 颖逸 <49649786+Zuoqiu-Yingyi@users.noreply.github.com>"
+    }
+  }
+}
