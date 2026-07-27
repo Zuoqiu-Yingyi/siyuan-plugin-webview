@@ -44,6 +44,7 @@
 
     const { config, plugin }: IProps = $props();
 
+    // svelte-ignore state_referenced_locally
     const i18n = plugin.i18n;
 
     function updated() {
