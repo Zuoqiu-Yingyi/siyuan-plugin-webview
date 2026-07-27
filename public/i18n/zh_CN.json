@@ -135,6 +135,9 @@
                     "title": "启用"
                 }
             },
+            "enableShortcut": {
+                "title": "启用快捷键"
+            },
             "otherHyperlink": {
                 "description": "访问其他位置的超链接",
                 "title": "其他超链接"
@@ -215,10 +218,13 @@
     },
     "webview": {
         "closeDevTools": "关闭开发者工具",
+        "developerTools": "开发者工具",
         "enterFullscreen": "进入全屏模式",
         "exitFullscreen": "退出全屏模式",
+        "fullscreenMode": "全屏模式",
         "goBackOnePage": "转到上一页",
         "goForwardOnePage": "转到下一页",
+        "more": "更多",
         "openDevTools": "打开开发者工具",
         "openWithDefaultProgram": "使用默认程序打开",
         "openWithNewWindow": "使用新窗口打开",

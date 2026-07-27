@@ -27,7 +27,7 @@
     import Panels from "@workspace/components/siyuan/setting/panel/Panels.svelte";
     import Shortcut from "@workspace/components/siyuan/setting/specified/Shortcut.svelte";
     import Tabs from "@workspace/components/siyuan/setting/tab/Tabs.svelte";
-    import { MouseButton } from "@workspace/utils/shortcut";
+    import { MouseButton, MouseEvent } from "@workspace/utils/shortcut";
     import { EditorType } from "@workspace/utils/siyuan";
 
     import { MenuBarStatus } from "@/utils/window";
@@ -42,14 +42,14 @@
         plugin: InstanceType<typeof WebviewPlugin>; // 插件实例
     }
 
-    const {
-        config,
-        plugin,
-    }: IProps = $props();
+    const { config, plugin }: IProps = $props();
 
+    // svelte-ignore state_referenced_locally
     const i18n = plugin.i18n;
 
     function updated() {
+        config.window.open.mouse.type = config.window.open.mouse.button === MouseButton.Left ? MouseEvent.click : MouseEvent.auxclick;
+        config.tab.open.mouse.type = config.tab.open.mouse.button === MouseButton.Left ? MouseEvent.click : MouseEvent.auxclick;
         plugin.updateConfig(config);
     }
 
@@ -149,6 +149,14 @@
             },
         ] as const satisfies ITab[],
     };
+
+    const mouse_button_options = [
+        { key: MouseButton.Left, text: i18n.settings.mouse.left },
+        { key: MouseButton.Middle, text: i18n.settings.mouse.middle },
+        { key: MouseButton.Right, text: i18n.settings.mouse.right },
+        { key: MouseButton.Forward, text: i18n.settings.mouse.forward },
+        { key: MouseButton.Back, text: i18n.settings.mouse.back },
+    ];
 </script>
 
 <Panels
@@ -330,11 +338,26 @@
                 class:fn__none={tabs.tab[2].key !== focusTab}
                 data-type={tabs.tab[2].name}
             >
+                <!-- 是否启用快捷键 -->
+                <Item title={i18n.settings.open.enableShortcut.title}>
+                    <Input
+                        slot="input"
+                        settingKey="enable"
+                        settingValue={config.tab.open.mouse.enable}
+                        type={ItemType.checkbox}
+                        on:changed={(e) => {
+                            config.tab.open.mouse.enable = e.detail.value;
+                            updated();
+                        }}
+                    />
+                </Item>
+
+                <!-- 快捷键设置 -->
                 <Shortcut
-                    disabledMouseButton={true}
+                    disabledMouseButton={false}
                     displayMouseEvent={false}
                     minWidth="16em"
-                    mouseButtonOptions={[{ key: MouseButton.Left, text: i18n.settings.mouse.left }]}
+                    mouseButtonOptions={mouse_button_options}
                     mouseButtonTitle={i18n.settings.mouse.button}
                     shortcut={config.tab.open.mouse}
                     title={i18n.settings.open.shortcut.title}
@@ -574,11 +597,26 @@
                 class:fn__none={tabs.window[2].key !== focusTab}
                 data-type={tabs.window[2].name}
             >
+                <!-- 是否启用快捷键 -->
+                <Item title={i18n.settings.open.enableShortcut.title}>
+                    <Input
+                        slot="input"
+                        settingKey="enable"
+                        settingValue={config.window.open.mouse.enable}
+                        type={ItemType.checkbox}
+                        on:changed={(e) => {
+                            config.window.open.mouse.enable = e.detail.value;
+                            updated();
+                        }}
+                    />
+                </Item>
+
+                <!-- 快捷键设置 -->
                 <Shortcut
-                    disabledMouseButton={true}
+                    disabledMouseButton={false}
                     displayMouseEvent={false}
                     minWidth="16em"
-                    mouseButtonOptions={[{ key: MouseButton.Middle, text: i18n.settings.mouse.middle }]}
+                    mouseButtonOptions={mouse_button_options}
                     mouseButtonTitle={i18n.settings.mouse.button}
                     shortcut={config.window.open.mouse}
                     title={i18n.settings.open.shortcut.title}

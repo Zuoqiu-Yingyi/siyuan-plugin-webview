@@ -44,16 +44,13 @@
         plugin: InstanceType<typeof WebviewPlugin>;
     }
 
-    let {
-        src,
-        tab,
-        title = "",
-        plugin,
-    }: IProps = $props();
+    let { src, tab, title = "", plugin }: IProps = $props();
 
+    // svelte-ignore state_referenced_locally
     const useragent: string = plugin.useragent; // 用户代理
+    // svelte-ignore state_referenced_locally
     const background: string = plugin.background; // 背景
-
+    // svelte-ignore state_referenced_locally
     const i18n = plugin.i18n;
 
     let menu: InstanceType<typeof plugin.siyuan.Menu> | undefined;
@@ -62,12 +59,17 @@
     let can_back = $state(false); // 能否转到上一页
     let can_forward = $state(false); // 能否转到下一页
     let loading = $state(false); // 页面是否正在加载
+    // svelte-ignore state_referenced_locally
     let address = $state(globalThis.decodeURIComponent(src)); // 地址栏
+    // svelte-ignore state_referenced_locally
+    let href = $state(src); // 当前页面链接
     let devtools_opened = $state(false); // 开发者工具是否已打开
 
     let iframe: HTMLIFrameElement | null = $state(null); // iframe 标签
     let webview: Electron.WebviewTag | undefined = $state(undefined); // webview 标签
     let webview_pointer_events_disable = $state(false); // 是否禁用 webview 的鼠标事件
+
+    let more: BlockIcon | undefined; // 更多按钮
 
     let mask: HTMLDivElement; // 遮罩
     let mask_active = $state(false); // 是否激活遮罩
@@ -75,6 +77,7 @@
     let status_display = $state(false); // 状态栏显示状态
     let status = $state(""); // 状态栏内容
 
+    // svelte-ignore state_referenced_locally
     void iframe;
 
     /* 加载 URL */
@@ -104,8 +107,8 @@
 
     /* 转到下一页 */
     function onGoForward() {
-        if (can_back) {
-            webview?.goBack?.();
+        if (can_forward) {
+            webview?.goForward?.();
         }
     }
 
@@ -125,7 +128,6 @@
 
         if (address) {
             try {
-                let href: string;
                 try {
                     // 判断是否为标准 URL
                     const url = new URL(address);
@@ -194,6 +196,140 @@
         }
     }
 
+    /**
+     * 构建 Markdown 链接
+     * @param text - 链接文本
+     * @param url - 链接地址
+     * @param title - 链接标题
+     */
+    function buildMarkdownLink(text: string | undefined, url: string, title?: string): string {
+        text = text || "🔗";
+        const markdown: string[] = [];
+        markdown.push("[");
+        markdown.push(text.replaceAll("]", "\\]").replaceAll("\n", ""));
+        markdown.push("](");
+        markdown.push(url);
+        if (title) {
+            markdown.push(` "${title.replaceAll("\n", "").replaceAll("&", "&amp;").replaceAll("\"", "&quot;")}"`);
+        }
+        markdown.push(")");
+        return markdown.join("");
+    }
+
+    /* 打开更多菜单 */
+    function onOpenMoreMenu(e: MouseEvent) {
+        setTimeout(() => {
+            // 需要延迟执行，否则会被 mask 的点击事件阻止
+
+            const items: siyuan.IMenu[] = [
+                {
+                    // 复制页面标题
+                    icon: "icon-webview-title",
+                    label: i18n.menu.copyTitle.label,
+                    click: () => clipboard.writeText(title),
+                },
+                {
+                    // 复制页面地址
+                    icon: "iconLink",
+                    label: i18n.menu.copyPageAddress.label,
+                    accelerator: "URL",
+                    click: () => clipboard.writeText(href),
+                },
+                {
+                    type: "separator",
+                },
+                {
+                    // 复制页面链接 (富文本)
+                    icon: "iconLink",
+                    label: i18n.menu.copyLink.label,
+                    accelerator: escapeHTML("<a>"),
+                    click: () => {
+                        const a = globalThis.document.createElement("a");
+                        a.href = href;
+                        a.textContent = title;
+                        clipboard.writeHTML(a.outerHTML);
+                    },
+                },
+                {
+                    // 复制链接 (HTML)
+                    icon: "iconHTML5",
+                    label: i18n.menu.copyLink.label,
+                    accelerator: "HTML",
+                    click: () => {
+                        const a = globalThis.document.createElement("a");
+                        a.href = href;
+                        a.textContent = title;
+                        clipboard.writeText(a.outerHTML);
+                    },
+                },
+                {
+                    // 复制链接 (Markdown)
+                    icon: "iconMarkdown",
+                    label: i18n.menu.copyLink.label,
+                    accelerator: "Markdown",
+                    click: () => {
+                        clipboard.writeText(
+                            buildMarkdownLink(
+                                title,
+                                href,
+                            ),
+                        );
+                    },
+                },
+                {
+                    type: "separator",
+                },
+                {
+                    // 使用默认程序(一般为浏览器)打开当前页面链接
+                    icon: "iconLanguage",
+                    label: i18n.webview.openWithDefaultProgram,
+                    click: () => onOpenWithDefaultProgram(),
+                },
+                {
+                    // 使用新窗口打开当前页面链接
+                    icon: "iconOpenWindow",
+                    label: i18n.webview.openWithNewWindow,
+                    click: (_element, event) => onOpenWithNewWindow(event),
+                },
+                {
+                    type: "separator",
+                },
+                {
+                    // 进入/退出全屏模式
+                    icon: fullscreen ? "iconFullscreenExit" : "iconFullscreen",
+                    // label: fullscreen ? i18n.webview.exitFullscreen : i18n.webview.enterFullscreen,
+                    label: i18n.webview.fullscreenMode,
+                    checked: fullscreen,
+                    click: () => onEnterOrExitFullscreen(),
+                },
+                {
+                    // 打开/关闭开发者工具
+                    icon: "iconBug",
+                    // label: devtools_opened ? i18n.webview.closeDevTools : i18n.webview.openDevTools,
+                    label: i18n.webview.developerTools,
+                    checked: devtools_opened,
+                    click: () => onOpenOrCloseDevTools(),
+                },
+            ];
+
+            menu = new plugin.siyuan.Menu(`${plugin.name}-more-menu`, () => {
+                mask_active = false;
+            });
+
+            items.forEach((item) => menu?.addItem(item));
+
+            mask_active = true;
+            mask?.focus();
+
+            const rect = more?.rect();
+            menu?.open({
+                x: rect?.right ?? e.pageX,
+                y: rect?.bottom ?? e.pageY,
+                isLeft: true,
+            });
+        }, 0);
+    }
+
     onMount(() => {
         /**
          * 监听页面变化
@@ -205,6 +341,7 @@
             // plugin.logger.debug(e)
             /* 更新地址栏地址 */
             if (e.isMainFrame) {
+                href = e.url;
                 address = globalThis.decodeURIComponent(e.url);
                 tab.data.href = e.url;
             }
@@ -386,10 +523,11 @@
                     icon: "iconOpenWindow",
                     label: i18n.menu.openByNewWindow.label,
                     action,
-                    click: (_element, event) => void plugin.openWebpageWindow(url, title, {
-                        screenX: event.screenX,
-                        screenY: event.screenY,
-                    }),
+                    click: (_element, event) =>
+                        void plugin.openWebpageWindow(url, title, {
+                            screenX: event.screenX,
+                            screenY: event.screenY,
+                        }),
                 });
 
                 return items;
@@ -477,20 +615,6 @@
                 }
 
                 return items;
-            }
-
-            function buildMarkdownLink(text: string | undefined, url: string, title: string | undefined): string {
-                text = text || "🔗";
-                const markdown: string[] = [];
-                markdown.push("[");
-                markdown.push(text.replaceAll("]", "\\]").replaceAll("\n", ""));
-                markdown.push("](");
-                markdown.push(url);
-                if (title) {
-                    markdown.push(` "${title.replaceAll("\n", "").replaceAll("&", "&amp;").replaceAll("\"", "&quot;")}"`);
-                }
-                markdown.push(")");
-                return markdown.join("");
             }
 
             function getValidTexts(...args: string[]): string[] {
@@ -958,38 +1082,13 @@
 
         <!-- <div class="fn__space" /> -->
 
-        <!-- 使用默认程序(一般为浏览器)打开当前页面链接 -->
+        <!-- 更多按钮 -->
         <BlockIcon
-            ariaLabel={i18n.webview.openWithDefaultProgram}
-            icon="#iconLanguage"
+            bind:this={more}
+            ariaLabel={i18n.webview.more}
+            icon="#iconMore"
             tooltipsDirection={TooltipsDirection.sw}
-            on:click={onOpenWithDefaultProgram}
-        />
-
-        <!-- 使用新窗口打开当前页面链接 -->
-        <BlockIcon
-            ariaLabel={i18n.webview.openWithNewWindow}
-            icon="#iconOpenWindow"
-            tooltipsDirection={TooltipsDirection.sw}
-            on:click={onOpenWithNewWindow}
-        />
-
-        <!-- 打开/关闭全屏模式 -->
-        <BlockIcon
-            active={fullscreen}
-            ariaLabel={fullscreen ? i18n.webview.exitFullscreen : i18n.webview.enterFullscreen}
-            icon={fullscreen ? "#iconFullscreenExit" : "#iconFullscreen"}
-            tooltipsDirection={TooltipsDirection.sw}
-            on:click={onEnterOrExitFullscreen}
-        />
-
-        <!-- 打开/关闭开发者工具 -->
-        <BlockIcon
-            active={devtools_opened}
-            ariaLabel={devtools_opened ? i18n.webview.closeDevTools : i18n.webview.openDevTools}
-            icon="#iconBug"
-            tooltipsDirection={TooltipsDirection.sw}
-            on:click={onOpenOrCloseDevTools}
+            on:click={onOpenMoreMenu}
         />
     </div>
 
@@ -999,8 +1098,8 @@
     <div
         slot="content"
         class="content fn__flex fn__flex-1"
-        onmouseenter={onmouseenter}
-        onmouseleave={onmouseleave}
+        {onmouseenter}
+        {onmouseleave}
     >
         {#if FLAG_ELECTRON}
             <webview

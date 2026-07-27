@@ -28,6 +28,8 @@ export const DEFAULT_CONFIG: IConfig = {
         enable: true,
         open: {
             mouse: {
+                enable: true,
+
                 type: "click",
                 button: MouseButton.Left,
 
@@ -128,7 +130,9 @@ export const DEFAULT_CONFIG: IConfig = {
         enable: true,
         open: {
             mouse: {
-                type: "mousedown",
+                enable: true,
+
+                type: "auxclick",
                 button: MouseButton.Middle,
 
                 altKey: false,
