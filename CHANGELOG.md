@@ -1,5 +1,24 @@
 # Changelog
 
+## [1.4.3](https://github.com/Zuoqiu-Yingyi/siyuan-plugin-webview/compare/v1.4.2...v1.4.3) (2026-07-27)
+
+
+### Miscellaneous
+
+* release v1.4.3 ([2574951](https://github.com/Zuoqiu-Yingyi/siyuan-plugin-webview/commit/257495117d5e399295df7996eed5d756e37d179a))
+* update version to 1.4.3 in package.json, plugin.json, and release-please-config.json ([e3a6be4](https://github.com/Zuoqiu-Yingyi/siyuan-plugin-webview/commit/e3a6be42fd0d9cbd5f4aae29bc5086ebbcd84764))
+
+
+### Features
+
+* **shortcut:** add enableShortcut option for mouse settings in configuration ([3c6b6be](https://github.com/Zuoqiu-Yingyi/siyuan-plugin-webview/commit/3c6b6be8babf5c9ac378486f2c9df1f4fc1c41a8))
+* **webview:** add more options to webview menu and update localization strings ([442e6e1](https://github.com/Zuoqiu-Yingyi/siyuan-plugin-webview/commit/442e6e1a0c8fd3f99968897997c2214a0685243a))
+
+
+### Bug Fixes
+
+* **Settings:** add svelte-ignore directive for local state reference ([18840c8](https://github.com/Zuoqiu-Yingyi/siyuan-plugin-webview/commit/18840c8c7e58ae429a66ed5ff4b860d3ef717097))
+
 ## 1.4.2 (2026-07-27)
 
 
