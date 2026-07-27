@@ -2,8 +2,8 @@
     "name": "webview",
     "author": "Zuoqiu Yingyi",
     "url": "https://github.com/Zuoqiu-Yingyi/siyuan-plugin-webview",
-    "version": "1.4.1",
-    "minAppVersion": "2.10.3",
+    "version": "1.4.2",
+    "minAppVersion": "3.7.0",
     "backends": [
         "all"
     ],
@@ -16,9 +16,9 @@
         "zh_CHT": "網頁視圖"
     },
     "description": {
-        "default": "Provide <code class='fn__code'>multi-tab / multi-window web</code> page view for SiYuan",
-        "zh_CN": "为思源提供 <code class='fn__code'>多页签 / 多窗口</code> 网页视图",
-        "zh_CHT": "為思源提供 <code class='fn__code'>多頁簽 / 多窗口</code> 網頁視圖"
+        "default": "Provide multi-tab/multi-window web page view for SiYuan",
+        "zh_CN": "为思源提供 多页签/多窗口 网页视图",
+        "zh_CHT": "為思源提供 多頁簽/多窗口 網頁視圖"
     },
     "readme": {
         "default": "README.md",

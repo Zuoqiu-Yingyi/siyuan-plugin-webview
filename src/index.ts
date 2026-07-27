@@ -55,7 +55,6 @@ import icon_webview_title from "./assets/symbols/icon-webview-title.symbol?raw";
 import { DEFAULT_CONFIG } from "./configs/default";
 import {
     openNewWindow,
-
 } from "./utils/window";
 
 import Settings from "./components/Settings.svelte";
@@ -119,8 +118,7 @@ export default class WebviewPlugin extends siyuan.Plugin {
                 // const target = document.createElement("div");
                 // (this.element as HTMLElement).append(target);
 
-                // eslint-disable-next-line ts/no-this-alias
-                const tab = this;
+                const tab = this as unknown as siyuan.Custom;
                 mount(Webview, {
                     // target,
                     target: tab.element,
