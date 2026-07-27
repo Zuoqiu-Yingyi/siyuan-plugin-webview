@@ -42,8 +42,12 @@ export interface IProtocols {
     };
 }
 
+export interface IMouseConfig {
+    enable: boolean; // 是否启用
+}
+
 export interface IOpen {
-    mouse: IMouseStatus; // 用于打开的鼠标按键
+    mouse: IMouseStatus & IMouseConfig; // 用于打开的鼠标按键
     targets: ITargets; // 打开的目标类型
     protocols: IProtocols; // 支持的协议
     pathnames: IProtocols; // 支持的路径名

@@ -135,6 +135,9 @@
                     "title": "啟用"
                 }
             },
+            "enableShortcut": {
+                "title": "啟用快捷鍵"
+            },
             "otherHyperlink": {
                 "description": "訪問其他位置的超鏈接",
                 "title": "其他超鏈接"

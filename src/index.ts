@@ -183,11 +183,7 @@ export default class WebviewPlugin extends siyuan.Plugin {
             })
             .catch((error) => this.logger.error(error))
             .finally(() => {
-                if (FLAG_ELECTRON && FLAG_DESKTOP) {
-                    /* 注册触发打开页签动作的监听器 */
-                    globalThis.addEventListener(this.config.tab.open.mouse.type, this.openTabEventListener, true);
-                }
-                globalThis.addEventListener(this.config.window.open.mouse.type, this.openWindowEventListener, true);
+                this.addGlobalEventListener();
 
                 /* 文档块菜单 */
                 this.eventBus.on("click-editortitleicon", this.blockMenuEventListener);
@@ -269,11 +265,7 @@ export default class WebviewPlugin extends siyuan.Plugin {
     }
 
     public override onunload(): void {
-        if (FLAG_ELECTRON && FLAG_DESKTOP) {
-            /* 移除触发打开页签动作的监听器 */
-            globalThis.removeEventListener(this.config.tab.open.mouse.type, this.openTabEventListener, true);
-        }
-        globalThis.removeEventListener(this.config.window.open.mouse.type, this.openWindowEventListener, true);
+        this.removeGlobalEventListener();
 
         this.eventBus.off("click-blockicon", this.blockMenuEventListener);
         this.eventBus.off("click-editortitleicon", this.blockMenuEventListener);
@@ -314,6 +306,8 @@ export default class WebviewPlugin extends siyuan.Plugin {
         if (config && config !== this.config) {
             this.config = config;
         }
+        this.removeGlobalEventListener();
+        this.addGlobalEventListener();
         return this.saveData(WebviewPlugin.GLOBAL_CONFIG_NAME, JSON.stringify(this.config, undefined, 4));
     }
 
@@ -940,16 +934,38 @@ export default class WebviewPlugin extends siyuan.Plugin {
         }
     };
 
+    /* 注册全局事件监听器 */
+    protected addGlobalEventListener(): void {
+        if (FLAG_ELECTRON && FLAG_DESKTOP) {
+            /* 注册触发打开页签动作的监听器 */
+            globalThis.addEventListener(this.config.tab.open.mouse.type, this.openTabEventListener, true);
+        }
+        globalThis.addEventListener(this.config.window.open.mouse.type, this.openWindowEventListener, true);
+    }
+
+    /* 移除全局事件监听器 */
+    protected removeGlobalEventListener(): void {
+        if (FLAG_ELECTRON && FLAG_DESKTOP) {
+            /* 移除触发打开页签动作的监听器 */
+            globalThis.removeEventListener(this.config.tab.open.mouse.type, this.openTabEventListener, true);
+        }
+        globalThis.removeEventListener(this.config.window.open.mouse.type, this.openWindowEventListener, true);
+    }
+
     /* 打开标签页 */
     protected readonly openTabEventListener = (e: Event) => {
         try {
-            // this.logger.debug(e);
+            this.logger.debug(e);
 
             if (!(e instanceof MouseEvent))
                 return;
 
             /* 判断功能是否已启用 */
             if (!this.config.tab.enable)
+                return;
+
+            /* 判断快捷键功能是否已启用 */
+            if (!this.config.tab.open.mouse.enable)
                 return;
 
             /* 判断事件是否为目标事件 */
@@ -995,13 +1011,17 @@ export default class WebviewPlugin extends siyuan.Plugin {
     /* 打开窗口 */
     protected readonly openWindowEventListener = (e: Event) => {
         try {
-            // this.logger.debug(e);
+            this.logger.debug(e);
 
             if (!(e instanceof MouseEvent))
                 return;
 
             /* 判断功能是否已启用 */
             if (!this.config.window.enable)
+                return;
+
+            /* 判断快捷键功能是否已启用 */
+            if (!this.config.window.open.mouse.enable)
                 return;
 
             /* 判断事件是否为目标事件 */

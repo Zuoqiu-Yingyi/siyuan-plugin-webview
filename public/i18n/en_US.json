@@ -167,6 +167,9 @@
                 "description": "Open SiYuan Editor in a new window",
                 "title": "Enable"
             },
+            "enableShortcut": {
+                "title": "Enable Shortcut"
+            },
             "focus": {
                 "description": "Whether the SiYuan editor opened in a new window is focused by default",
                 "title": "Focus"
