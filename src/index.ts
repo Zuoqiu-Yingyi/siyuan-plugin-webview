@@ -37,6 +37,7 @@ import {
 
 } from "@workspace/utils/siyuan/menu/block";
 import { washMenuItems } from "@workspace/utils/siyuan/menu/wash";
+import { fn__code } from "@workspace/utils/siyuan/text/span";
 import {
     buildSiyuanWebURL,
     editorType2Pathname,
@@ -794,7 +795,8 @@ export default class WebviewPlugin extends siyuan.Plugin {
 
         e.detail.menu.addItem({
             icon: "icon-webview-chromium",
-            label: this.i18n.displayName,
+            label: this.displayName,
+            accelerator: fn__code(this.name),
             submenu: washMenuItems(submenu),
         });
     };
@@ -839,7 +841,8 @@ export default class WebviewPlugin extends siyuan.Plugin {
 
         e.detail.menu.addItem({
             icon: "icon-webview-chromium",
-            label: this.i18n.displayName,
+            label: this.displayName,
+            accelerator: fn__code(this.name),
             submenu: washMenuItems(submenu),
         });
     };
@@ -854,7 +857,8 @@ export default class WebviewPlugin extends siyuan.Plugin {
 
             e.detail.menu.addItem({
                 icon: "icon-webview-chromium",
-                label: this.i18n.displayName,
+                label: this.displayName,
+                accelerator: fn__code(this.name),
                 submenu: washMenuItems(submenu),
             });
         }
@@ -872,7 +876,8 @@ export default class WebviewPlugin extends siyuan.Plugin {
 
             e.detail.menu.addItem({
                 icon: "icon-webview-chromium",
-                label: this.i18n.displayName,
+                label: this.displayName,
+                accelerator: fn__code(this.name),
                 submenu: washMenuItems(submenu),
             });
         }
@@ -928,7 +933,8 @@ export default class WebviewPlugin extends siyuan.Plugin {
 
             detail.menu.addItem({
                 icon: "icon-webview-chromium",
-                label: this.i18n.displayName,
+                label: this.displayName,
+                accelerator: fn__code(this.name),
                 submenu: washMenuItems(submenu),
             });
         }
