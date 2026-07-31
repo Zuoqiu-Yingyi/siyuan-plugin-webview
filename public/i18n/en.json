@@ -135,6 +135,9 @@
                     "title": "Enable"
                 }
             },
+            "enableShortcut": {
+                "title": "Enable Shortcut"
+            },
             "otherHyperlink": {
                 "description": "Access hyperlinks elsewhere",
                 "title": "Other Hyperlink"
@@ -166,9 +169,6 @@
             "enable": {
                 "description": "Open SiYuan Editor in a new window",
                 "title": "Enable"
-            },
-            "enableShortcut": {
-                "title": "Enable Shortcut"
             },
             "focus": {
                 "description": "Whether the SiYuan editor opened in a new window is focused by default",
@@ -217,11 +217,11 @@
         }
     },
     "webview": {
-        "developerTools": "Developer tools",
-        "fullscreenMode": "Full-screen mode",
         "closeDevTools": "Close developer tools",
+        "developerTools": "Developer tools",
         "enterFullscreen": "Enter full-screen mode",
         "exitFullscreen": "Exit full-screen mode",
+        "fullscreenMode": "Full-screen mode",
         "goBackOnePage": "Go back one page",
         "goForwardOnePage": "Go forward one page",
         "more": "More",
