@@ -134,7 +134,7 @@ export default class WebviewPlugin extends siyuan.Plugin {
         });
     }
 
-    public override onload(): void {
+    public override async onload(): Promise<void> {
         /* 注册图标 */
         this.addIcons([
             icon_webview_anchor,
@@ -178,27 +178,28 @@ export default class WebviewPlugin extends siyuan.Plugin {
         });
 
         // this.logger.debug(this);
-        this.loadData(WebviewPlugin.GLOBAL_CONFIG_NAME)
-            .then((config) => {
-                this.config = merge(DEFAULT_CONFIG, config || {}) as IConfig;
-            })
-            .catch((error) => this.logger.error(error))
-            .finally(() => {
-                this.addGlobalEventListener();
+        try {
+            this.config = merge(DEFAULT_CONFIG, await this.loadData(WebviewPlugin.GLOBAL_CONFIG_NAME) || {}) as IConfig;
+        }
+        catch (error) {
+            this.logger.error(error);
+        }
+        finally {
+            this.addGlobalEventListener();
 
-                /* 文档块菜单 */
-                this.eventBus.on("click-editortitleicon", this.blockMenuEventListener);
-                /* 其他块菜单 */
-                this.eventBus.on("click-blockicon", this.blockMenuEventListener);
-                /* 块引用菜单 */
-                this.eventBus.on("open-menu-blockref", this.blockRefMenuEventListener);
-                /* 超链接菜单 */
-                this.eventBus.on("open-menu-link", this.linkMenuEventListener);
-                /* 图片菜单 */
-                this.eventBus.on("open-menu-image", this.imageMenuEventListener);
-                /* 资源菜单 */
-                this.eventBus.on("open-menu-fileannotationref", this.fileAnnotationRefMenuEventListener);
-            });
+            /* 文档块菜单 */
+            this.eventBus.on("click-editortitleicon", this.blockMenuEventListener);
+            /* 其他块菜单 */
+            this.eventBus.on("click-blockicon", this.blockMenuEventListener);
+            /* 块引用菜单 */
+            this.eventBus.on("open-menu-blockref", this.blockRefMenuEventListener);
+            /* 超链接菜单 */
+            this.eventBus.on("open-menu-link", this.linkMenuEventListener);
+            /* 图片菜单 */
+            this.eventBus.on("open-menu-image", this.imageMenuEventListener);
+            /* 资源菜单 */
+            this.eventBus.on("open-menu-fileannotationref", this.fileAnnotationRefMenuEventListener);
+        }
     }
 
     public override onLayoutReady(): void {
