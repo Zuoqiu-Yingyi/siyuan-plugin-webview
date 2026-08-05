@@ -1,0 +1,20 @@
+src/index.ts
+  s_a1161c5c36a6d1::t_b5da0d91cf299f 137
+  s_a1161c5c36a6d1::t_4bd5cf94f98d2d 181-202
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.39-trip",
+  "base_commit_sha": "10efbd2814e84dc6b076acb04c20128f1ec6a979",
+  "prompts": {},
+  "sessions": {
+    "s_a1161c5c36a6d1": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "42720e29-f478-4b48-aaef-a8254a26841e",
+        "model": "claude-glm-5.2"
+      },
+      "human_author": "Yingyi / 颖逸 <49649786+Zuoqiu-Yingyi@users.noreply.github.com>"
+    }
+  }
+}
