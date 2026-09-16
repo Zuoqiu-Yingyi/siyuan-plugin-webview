@@ -364,7 +364,12 @@ export default class WebviewPlugin extends siyuan.Plugin {
         webPreferences: IWebPreferences = {
             defaultFontSize: window.siyuan.config!.editor.fontSize,
             defaultFontFamily: {
-                standard: window.siyuan.config!.editor.fontFamily,
+                /**
+                 * 思源已将 `config.editor.fontFamily` 替换为按优先级排列的 `fontFamilies`,
+                 * 这里取优先级最高的字体, 并兼容读取旧版本思源的 `fontFamily`
+                 */
+                standard: window.siyuan.config!.editor.fontFamilies?.[0]?.family
+                    ?? (window.siyuan.config!.editor as { fontFamily?: string }).fontFamily,
             },
         },
     ) {

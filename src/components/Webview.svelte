@@ -22,8 +22,10 @@
     import BlockIcon from "@workspace/components/siyuan/misc/BlockIcon.svelte";
     import { TooltipsDirection } from "@workspace/components/siyuan/misc/tooltips";
     import Tab from "@workspace/components/siyuan/tab/Tab.svelte";
-    import { nativeImage } from "@workspace/utils/electron";
-    import clipboard from "@workspace/utils/electron/clipboard";
+    import clipboard, {
+        writeHTMLCompat,
+        writeImageCompat,
+    } from "@workspace/utils/electron/clipboard";
     import { FLAG_ELECTRON } from "@workspace/utils/env/native-front-end";
     import { base64ToDataURL } from "@workspace/utils/misc/dataurl";
     import { escapeHTML } from "@workspace/utils/misc/html";
@@ -247,7 +249,7 @@
                         const a = globalThis.document.createElement("a");
                         a.href = href;
                         a.textContent = title;
-                        clipboard.writeHTML(a.outerHTML);
+                        void writeHTMLCompat(a.outerHTML);
                     },
                 },
                 {
@@ -654,7 +656,7 @@
                                     a.href = params.linkURL;
                                     a.title = params.titleText;
                                     a.textContent = params.linkText;
-                                    clipboard.writeHTML(a.outerHTML);
+                                    void writeHTMLCompat(a.outerHTML);
                                 },
                             });
 
@@ -704,7 +706,7 @@
                                     const iframe = globalThis.document.createElement("iframe");
                                     iframe.src = params.frameURL;
                                     iframe.title = params.titleText;
-                                    clipboard.writeHTML(iframe.outerHTML);
+                                    void writeHTMLCompat(iframe.outerHTML);
                                 },
                             });
 
@@ -758,7 +760,7 @@
                                     const a = globalThis.document.createElement("a");
                                     a.href = params.pageURL;
                                     a.title = params.titleText;
-                                    clipboard.writeHTML(a.outerHTML);
+                                    void writeHTMLCompat(a.outerHTML);
                                 },
                             });
 
@@ -824,8 +826,7 @@
                                     });
                                     if (response.data.status >= 200 && response.data.status < 300) {
                                         const data_url = base64ToDataURL(response.data.body, response.data.contentType);
-                                        const image = nativeImage.createFromDataURL(data_url);
-                                        clipboard.writeImage(image);
+                                        await writeImageCompat(data_url);
                                     }
                                 }
                                 catch (error) {
@@ -849,7 +850,7 @@
                             img.src = params.srcURL;
                             img.title = params.titleText;
                             img.alt = params.altText;
-                            clipboard.writeHTML(img.outerHTML);
+                            void writeHTMLCompat(img.outerHTML);
                         },
                     });
 
@@ -906,7 +907,7 @@
                             const audio = globalThis.document.createElement("audio");
                             audio.src = params.srcURL;
                             audio.title = params.titleText;
-                            clipboard.writeHTML(audio.outerHTML);
+                            void writeHTMLCompat(audio.outerHTML);
                         },
                     });
 
@@ -962,7 +963,7 @@
                             const video = globalThis.document.createElement("video");
                             video.src = params.srcURL;
                             video.title = params.titleText;
-                            clipboard.writeHTML(video.outerHTML);
+                            void writeHTMLCompat(video.outerHTML);
                         },
                     });
 
