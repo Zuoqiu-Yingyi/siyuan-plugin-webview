@@ -1,0 +1,23 @@
+src/components/Webview.svelte
+  s_375e4a819920b7::t_e60bff5296cddb 829
+  s_375e4a819920b7::t_b07b991582e3ed 25-28
+  s_375e4a819920b7::t_ad6d044a1e7a7b 252,659,709,763,853,910,966
+src/index.ts
+  s_375e4a819920b7::t_7152eff4332ae7 367-372
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.44-trip",
+  "base_commit_sha": "1769077c71ffa98e4d26056200fdb65906d69896",
+  "prompts": {},
+  "sessions": {
+    "s_375e4a819920b7": {
+      "agent_id": {
+        "tool": "chengxiaobang",
+        "id": "s_vmnj8i26q86q",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Yingyi / 颖逸 <49649786+Zuoqiu-Yingyi@users.noreply.github.com>"
+    }
+  }
+}
