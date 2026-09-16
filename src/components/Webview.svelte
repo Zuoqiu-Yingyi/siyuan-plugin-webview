@@ -67,21 +67,6 @@
     let href = $state(src); // 当前页面链接
     let devtools_opened = $state(false); // 开发者工具是否已打开
 
-    /**
-     * `<webview>` 的标签名
-     *
-     * 必须通过 `<svelte:element this={WEBVIEW_TAG}>` 而非直接使用 `<webview>` 渲染:
-     * `<webview>` 是 Electron 注册的自定义元素 (内部用 shadow DOM 包裹一个进程外 iframe),
-     * 而 Svelte 仅在标签名含连字符或带有 `is` 属性时才视其为自定义元素
-     * (参见 svelte `phases/nodes.js` 的 `is_custom_element_node`)。
-     * `webview` 不满足该条件, 因此静态模板会经 `<template>` + `cloneNode` 创建它,
-     * 而 `<template>` 的内容属于没有自定义元素注册表的惰性文档,
-     * 得到的元素不会被 upgrade, 挂载后不会初始化也不会渲染。
-     * `<svelte:element>` 因标签名可变, 始终用 `document.createElement` 在当前文档中创建元素, 可正常 upgrade。
-     * REF: https://www.electronjs.org/docs/latest/api/webview-tag
-     */
-    const WEBVIEW_TAG = "webview";
-
     let iframe: HTMLIFrameElement | null = $state(null); // iframe 标签
     let webview: Electron.WebviewTag | undefined = $state(undefined); // webview 标签
     let webview_pointer_events_disable = $state(false); // 是否禁用 webview 的鼠标事件
@@ -1117,8 +1102,7 @@
             {onmouseleave}
         >
             {#if FLAG_ELECTRON}
-                <svelte:element
-                    this={WEBVIEW_TAG}
+                <webview
                     bind:this={webview}
                     style:background
                     class="webview fn__flex-1"
@@ -1127,7 +1111,7 @@
                     {src}
                     {title}
                     {useragent}
-                ></svelte:element>
+                ></webview>
             {:else}
                 <iframe
                     bind:this={iframe}
