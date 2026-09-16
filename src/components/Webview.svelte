@@ -1040,106 +1040,106 @@
 
 <Tab {fullscreen}>
     <!-- 地址栏 -->
-    <div
-        slot="breadcrumb"
-        class="protyle-breadcrumb"
-    >
-        <!-- 后退按钮 -->
-        <BlockIcon
-            ariaLabel={i18n.webview.goForwardOnePage}
-            disabled={!can_back}
-            icon="#iconLeft"
-            tooltipsDirection={TooltipsDirection.se}
-            on:click={onGoBack}
-        />
+    {#snippet breadcrumbSlot()}
+        <div class="protyle-breadcrumb">
+            <!-- 后退按钮 -->
+            <BlockIcon
+                ariaLabel={i18n.webview.goForwardOnePage}
+                disabled={!can_back}
+                icon="#iconLeft"
+                onClick={onGoBack}
+                tooltipsDirection={TooltipsDirection.se}
+            />
 
-        <!-- 前进按钮 -->
-        <BlockIcon
-            ariaLabel={i18n.webview.goBackOnePage}
-            disabled={!can_forward}
-            icon="#iconRight"
-            tooltipsDirection={TooltipsDirection.se}
-            on:click={onGoForward}
-        />
+            <!-- 前进按钮 -->
+            <BlockIcon
+                ariaLabel={i18n.webview.goBackOnePage}
+                disabled={!can_forward}
+                icon="#iconRight"
+                onClick={onGoForward}
+                tooltipsDirection={TooltipsDirection.se}
+            />
 
-        <!-- 刷新/终止加载按钮 -->
-        <BlockIcon
-            ariaLabel={loading ? i18n.webview.stopLoadingThisPage : i18n.webview.reloadCurrentPage}
-            icon={loading ? "#iconClose" : "#iconRefresh"}
-            tooltipsDirection={TooltipsDirection.se}
-            on:click={onRefreshOrStop}
-        />
+            <!-- 刷新/终止加载按钮 -->
+            <BlockIcon
+                ariaLabel={loading ? i18n.webview.stopLoadingThisPage : i18n.webview.reloadCurrentPage}
+                icon={loading ? "#iconClose" : "#iconRefresh"}
+                onClick={onRefreshOrStop}
+                tooltipsDirection={TooltipsDirection.se}
+            />
 
-        <!-- <div class="fn__space" /> -->
+            <!-- <div class="fn__space" /> -->
 
-        <!-- 地址输入框 -->
-        <input
-            class="b3-text-field fn__flex-1 address-field"
-            onchange={onAddressChange}
-            type="url"
-            bind:value={address}
-        />
+            <!-- 地址输入框 -->
+            <input
+                class="b3-text-field fn__flex-1 address-field"
+                onchange={onAddressChange}
+                type="url"
+                bind:value={address}
+            />
 
-        <!-- <div class="fn__space" /> -->
+            <!-- <div class="fn__space" /> -->
 
-        <!-- 更多按钮 -->
-        <BlockIcon
-            bind:this={more}
-            ariaLabel={i18n.webview.more}
-            icon="#iconMore"
-            tooltipsDirection={TooltipsDirection.sw}
-            on:click={onOpenMoreMenu}
-        />
-    </div>
+            <!-- 更多按钮 -->
+            <BlockIcon
+                bind:this={more}
+                ariaLabel={i18n.webview.more}
+                icon="#iconMore"
+                onClick={onOpenMoreMenu}
+                tooltipsDirection={TooltipsDirection.sw}
+            />
+        </div>
+    {/snippet}
 
     <!-- 主体 -->
-    <!-- svelte-ignore a11y_no_static_element_interactions -->
-    <!-- svelte-ignore a11y_click_events_have_key_events -->
-    <div
-        slot="content"
-        class="content fn__flex fn__flex-1"
-        {onmouseenter}
-        {onmouseleave}
-    >
-        {#if FLAG_ELECTRON}
-            <webview
-                bind:this={webview}
-                style:background
-                class="webview fn__flex-1"
-                class:pointer-events-disable={webview_pointer_events_disable}
-                allowpopups
-                {src}
-                {title}
-                {useragent}
-            ></webview>
-        {:else}
-            <iframe
-                bind:this={iframe}
-                style:background
-                class="fn__flex-1"
-                allowfullscreen
-                {src}
-                {title}
-            ></iframe>
-        {/if}
-        {#if status_display}
-            <!-- 状态提示 (显示超链接地址) -->
-            <div
-                class="webview-status tooltip"
-                in:fade={{ delay: 0, duration: 125 }}
-                out:fade={{ delay: 500, duration: 250 }}
-            >
-                <span>{status}</span>
-            </div>
-        {/if}
-        <!-- 右键菜单遮罩 (点击后关闭菜单) -->
+    {#snippet content()}
+        <!-- svelte-ignore a11y_no_static_element_interactions -->
+        <!-- svelte-ignore a11y_click_events_have_key_events -->
         <div
-            bind:this={mask}
-            class="mask"
-            class:mask-active={mask_active}
-            onclick={onMaskClick}
-        ></div>
-    </div>
+            class="content fn__flex fn__flex-1"
+            {onmouseenter}
+            {onmouseleave}
+        >
+            {#if FLAG_ELECTRON}
+                <webview
+                    bind:this={webview}
+                    style:background
+                    class="webview fn__flex-1"
+                    class:pointer-events-disable={webview_pointer_events_disable}
+                    allowpopups
+                    {src}
+                    {title}
+                    {useragent}
+                ></webview>
+            {:else}
+                <iframe
+                    bind:this={iframe}
+                    style:background
+                    class="fn__flex-1"
+                    allowfullscreen
+                    {src}
+                    {title}
+                ></iframe>
+            {/if}
+            {#if status_display}
+                <!-- 状态提示 (显示超链接地址) -->
+                <div
+                    class="webview-status tooltip"
+                    in:fade={{ delay: 0, duration: 125 }}
+                    out:fade={{ delay: 500, duration: 250 }}
+                >
+                    <span>{status}</span>
+                </div>
+            {/if}
+            <!-- 右键菜单遮罩 (点击后关闭菜单) -->
+            <div
+                bind:this={mask}
+                class="mask"
+                class:mask-active={mask_active}
+                onclick={onMaskClick}
+            ></div>
+        </div>
+    {/snippet}
 </Tab>
 
 <style lang="less">

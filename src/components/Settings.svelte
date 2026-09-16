@@ -162,559 +162,591 @@
 <Panels
     focus={panels_focus_key}
     {panels}
-    let:focus={focusPanel}
 >
-    <!-- 常规设置面板 -->
-    <Panel display={panels[0].key === focusPanel}>
-        <!-- 自定义 UA -->
-        <Item
-            block={true}
-            text={i18n.settings.generalSettings.useragent.description}
-            title={i18n.settings.generalSettings.useragent.title}
-        >
-            <Input
-                slot="input"
+    {#snippet children(focusPanel)}
+        <!-- 常规设置面板 -->
+        <Panel display={panels[0].key === focusPanel}>
+            <!-- 自定义 UA -->
+            <Item
                 block={true}
-                placeholder={globalThis.navigator.userAgent}
-                settingKey="Text"
-                settingValue={config.general.useragent}
-                type={ItemType.text}
-                on:changed={(e) => {
-                    config.general.useragent = e.detail.value;
-                    updated();
-                }}
-            />
-        </Item>
-
-        <!-- 背景颜色 -->
-        <Item
-            text={i18n.settings.background.description}
-            title={i18n.settings.background.title}
-        >
-            <Input
-                slot="input"
-                settingKey="text"
-                settingValue={config.general.background}
-                type={ItemType.text}
-                on:changed={(e) => {
-                    config.general.background = e.detail.value;
-                    updated();
-                }}
-            />
-        </Item>
-
-        <!-- 重置设置 -->
-        <Item
-            text={i18n.settings.generalSettings.reset.description}
-            title={i18n.settings.generalSettings.reset.title}
-        >
-            <Input
-                slot="input"
-                settingKey="Reset"
-                settingValue={i18n.settings.generalSettings.reset.text}
-                type={ItemType.button}
-                on:clicked={resetOptions}
-            />
-        </Item>
-    </Panel>
-
-    <!-- 打开页签的设置面板 -->
-    <Panel display={panels[1].key === focusPanel}>
-        <Tabs
-            focus={tab_settings_tabs_focus_key}
-            tabs={tabs.tab}
-            let:focus={focusTab}
-        >
-            <!-- 标签页 1 - 通用设置 -->
-            <div
-                class:fn__none={tabs.tab[0].key !== focusTab}
-                data-type={tabs.tab[0].name}
+                text={i18n.settings.generalSettings.useragent.description}
+                title={i18n.settings.generalSettings.useragent.title}
             >
-                <!-- 是否启用 -->
-                <Item
-                    text={i18n.settings.open.enable.tab.description}
-                    title={i18n.settings.open.enable.tab.title}
-                >
+                {#snippet input()}
                     <Input
-                        slot="input"
-                        settingKey="Checkbox"
-                        settingValue={config.tab.enable}
-                        type={ItemType.checkbox}
-                        on:changed={(e) => {
-                            config.tab.enable = e.detail.value;
+                        block={true}
+                        onChanged={(e) => {
+                            config.general.useragent = e.value;
                             updated();
                         }}
+                        placeholder={globalThis.navigator.userAgent}
+                        settingKey="Text"
+                        settingValue={config.general.useragent}
+                        type={ItemType.text}
                     />
-                </Item>
+                {/snippet}
+            </Item>
 
-                <!-- 编辑器超链接 -->
-                <Item
-                    text={i18n.settings.open.editorHyperlink.description}
-                    title={i18n.settings.open.editorHyperlink.title}
-                >
-                    <Input
-                        slot="input"
-                        settingKey="Checkbox"
-                        settingValue={config.tab.open.targets.hyperlink.editor.enable}
-                        type={ItemType.checkbox}
-                        on:changed={(e) => {
-                            config.tab.open.targets.hyperlink.editor.enable = e.detail.value;
-                            updated();
-                        }}
-                    />
-                </Item>
-
-                <!-- 其他超链接 -->
-                <Item
-                    text={i18n.settings.open.otherHyperlink.description}
-                    title={i18n.settings.open.otherHyperlink.title}
-                >
-                    <Input
-                        slot="input"
-                        settingKey="Checkbox"
-                        settingValue={config.tab.open.targets.hyperlink.other.enable}
-                        type={ItemType.checkbox}
-                        on:changed={(e) => {
-                            config.tab.open.targets.hyperlink.other.enable = e.detail.value;
-                            updated();
-                        }}
-                    />
-                </Item>
-            </div>
-            <!-- 标签页 2 - 超链接设置 -->
-            <div
-                class:fn__none={tabs.tab[1].key !== focusTab}
-                data-type={tabs.tab[1].name}
+            <!-- 背景颜色 -->
+            <Item
+                text={i18n.settings.background.description}
+                title={i18n.settings.background.title}
             >
-                <!-- URL 协议 -->
-                <Group title={i18n.settings.protocols.title}>
-                    {#each Object.entries(config.tab.open.protocols) as [key, protocol] (key)}
-                        <MiniItem minWidth="8em">
-                            <code
-                                slot="title"
-                                class="fn__code">{protocol.prefix}</code
-                            >
-                            <Input
-                                slot="input"
-                                settingKey="Checkbox"
-                                settingValue={protocol.enable}
-                                type={ItemType.checkbox}
-                                on:changed={(e) => {
-                                    protocol.enable = e.detail.value;
-                                    updated();
-                                }}
-                            />
-                        </MiniItem>
-                    {/each}
-                </Group>
+                {#snippet input()}
+                    <Input
+                        onChanged={(e) => {
+                            config.general.background = e.value;
+                            updated();
+                        }}
+                        settingKey="text"
+                        settingValue={config.general.background}
+                        type={ItemType.text}
+                    />
+                {/snippet}
+            </Item>
 
-                <!-- 资源文件路径名 -->
-                <Group title={i18n.settings.pathnames.title}>
-                    {#each Object.entries(config.tab.open.pathnames) as [key, pathname] (key)}
-                        <MiniItem
-                            marginRight="1em"
-                            minWidth="9em"
-                        >
-                            <code
-                                slot="title"
-                                class="fn__code">{pathname.prefix}</code
-                            >
-                            <Input
-                                slot="input"
-                                settingKey="Checkbox"
-                                settingValue={pathname.enable}
-                                type={ItemType.checkbox}
-                                on:changed={(e) => {
-                                    pathname.enable = e.detail.value;
-                                    updated();
-                                }}
-                            />
-                        </MiniItem>
-                    {/each}
-                </Group>
-            </div>
-            <!-- 标签页 3 - 快捷键设置 -->
-            <div
-                class:fn__none={tabs.tab[2].key !== focusTab}
-                data-type={tabs.tab[2].name}
+            <!-- 重置设置 -->
+            <Item
+                text={i18n.settings.generalSettings.reset.description}
+                title={i18n.settings.generalSettings.reset.title}
             >
-                <!-- 是否启用快捷键 -->
-                <Item title={i18n.settings.open.enableShortcut.title}>
+                {#snippet input()}
                     <Input
-                        slot="input"
-                        settingKey="enable"
-                        settingValue={config.tab.open.mouse.enable}
-                        type={ItemType.checkbox}
-                        on:changed={(e) => {
-                            config.tab.open.mouse.enable = e.detail.value;
-                            updated();
-                        }}
-                    />
-                </Item>
-
-                <!-- 快捷键设置 -->
-                <Shortcut
-                    disabledMouseButton={false}
-                    displayMouseEvent={false}
-                    minWidth="16em"
-                    mouseButtonOptions={mouse_button_options}
-                    mouseButtonTitle={i18n.settings.mouse.button}
-                    shortcut={config.tab.open.mouse}
-                    title={i18n.settings.open.shortcut.title}
-                    on:changed={updated}
-                />
-            </div>
-        </Tabs>
-    </Panel>
-
-    <!-- 打开窗口的设置面板 -->
-    <Panel display={panels[2].key === focusPanel}>
-        <Tabs
-            focus={window_settings_tabs_focus_key}
-            tabs={tabs.window}
-            let:focus={focusTab}
-        >
-            <!-- 标签页 1 - 通用设置 -->
-            <div
-                class:fn__none={tabs.window[0].key !== focusTab}
-                data-type={tabs.window[0].name}
-            >
-                <!-- 是否启用 -->
-                <Item
-                    text={i18n.settings.open.enable.window.description}
-                    title={i18n.settings.open.enable.window.title}
-                >
-                    <Input
-                        slot="input"
-                        settingKey="enable"
-                        settingValue={config.window.enable}
-                        type={ItemType.checkbox}
-                        on:changed={(e) => {
-                            config.window.enable = e.detail.value;
-                            updated();
-                        }}
-                    />
-                </Item>
-
-                <!-- 编辑器超链接 -->
-                <Item
-                    text={i18n.settings.open.editorHyperlink.description}
-                    title={i18n.settings.open.editorHyperlink.title}
-                >
-                    <Input
-                        slot="input"
-                        settingKey="editorHyperlink"
-                        settingValue={config.window.open.targets.hyperlink.editor}
-                        type={ItemType.checkbox}
-                        on:changed={(e) => {
-                            config.window.open.targets.hyperlink.editor = e.detail.value;
-                            updated();
-                        }}
-                    />
-                </Item>
-
-                <!-- 其他超链接 -->
-                <Item
-                    text={i18n.settings.open.otherHyperlink.description}
-                    title={i18n.settings.open.otherHyperlink.title}
-                >
-                    <Input
-                        slot="input"
-                        settingKey="otherHyperlink"
-                        settingValue={config.window.open.targets.hyperlink.other}
-                        type={ItemType.checkbox}
-                        on:changed={(e) => {
-                            config.window.open.targets.hyperlink.other.enable = e.detail.value;
-                            updated();
-                        }}
-                    />
-                </Item>
-
-                <!-- 窗口宽度 -->
-                <Item
-                    text={i18n.settings.window.width.description}
-                    title={i18n.settings.window.width.title}
-                >
-                    <Input
-                        slot="input"
-                        limits={{ min: 320, max: 15360, step: 40 }}
-                        settingKey="width"
-                        settingValue={config.window.params.width}
-                        type={ItemType.number}
-                        on:changed={(e) => {
-                            config.window.params.width = e.detail.value;
-                            updated();
-                        }}
-                    />
-                </Item>
-
-                <!-- 窗口高度 -->
-                <Item
-                    text={i18n.settings.window.height.description}
-                    title={i18n.settings.window.height.title}
-                >
-                    <Input
-                        slot="input"
-                        limits={{ min: 240, max: 8640, step: 40 }}
-                        settingKey="height"
-                        settingValue={config.window.params.height}
-                        type={ItemType.number}
-                        on:changed={(e) => {
-                            config.window.params.height = e.detail.value;
-                            updated();
-                        }}
-                    />
-                </Item>
-
-                <!-- 窗口居中 -->
-                <Item
-                    text={i18n.settings.window.center.description}
-                    title={i18n.settings.window.center.title}
-                >
-                    <Input
-                        slot="input"
-                        settingKey="center"
-                        settingValue={config.window.params.center}
-                        type={ItemType.checkbox}
-                        on:changed={(e) => {
-                            config.window.params.center = e.detail.value;
-                            updated();
-                        }}
-                    />
-                </Item>
-
-                <!-- 窗口置顶 -->
-                <Item
-                    text={i18n.settings.window.top.description}
-                    title={i18n.settings.window.top.title}
-                >
-                    <Input
-                        slot="input"
-                        settingKey="top"
-                        settingValue={config.window.params.alwaysOnTop}
-                        type={ItemType.checkbox}
-                        on:changed={(e) => {
-                            config.window.params.alwaysOnTop = e.detail.value;
-                            updated();
-                        }}
-                    />
-                </Item>
-
-                <!-- 窗口菜单栏 -->
-                <Item
-                    text={i18n.settings.window.menuBar.description}
-                    title={i18n.settings.window.menuBar.title}
-                >
-                    <Input
-                        slot="input"
-                        options={[
-                            { key: MenuBarStatus.AutoHide, text: i18n.settings.window.menuBar.options.autoHide },
-                            { key: MenuBarStatus.AlwaysShow, text: i18n.settings.window.menuBar.options.alwaysShow },
-                            { key: MenuBarStatus.Disabled, text: i18n.settings.window.menuBar.options.disabled },
-                        ]}
-                        settingKey="menuBar"
-                        settingValue={config.window.params.enableMenuBar // 是否启用菜单栏
-                            ? config.window.params.autoHideMenuBar // 是否自动隐藏菜单栏
-                                ? MenuBarStatus.AutoHide // 自动隐藏
-                                : MenuBarStatus.AlwaysShow // 总是显示
-                            : MenuBarStatus.Disabled}
-                        type={ItemType.select}
-                        on:changed={(e) => {
-                            switch (e.detail.value) {
-                                case MenuBarStatus.AutoHide:
-                                    config.window.params.enableMenuBar = true;
-                                    config.window.params.autoHideMenuBar = true;
-                                    break;
-                                case MenuBarStatus.AlwaysShow:
-                                    config.window.params.enableMenuBar = true;
-                                    config.window.params.autoHideMenuBar = false;
-                                    break;
-                                case MenuBarStatus.Disabled:
-                                    config.window.params.enableMenuBar = false;
-                                    break;
-                            }
-                            updated();
-                        }}
-                    />
-                </Item>
-            </div>
-
-            <!-- 标签页 2 - 超链接设置 -->
-            <div
-                class:fn__none={tabs.window[1].key !== focusTab}
-                data-type={tabs.window[1].name}
-            >
-                <!-- URL 协议 -->
-                <Group title={i18n.settings.protocols.title}>
-                    {#each Object.entries(config.window.open.protocols) as [key, protocol] (key)}
-                        <MiniItem minWidth="8em">
-                            <code
-                                slot="title"
-                                class="fn__code">{protocol.prefix}</code
-                            >
-                            <Input
-                                slot="input"
-                                settingKey="Checkbox"
-                                settingValue={protocol.enable}
-                                type={ItemType.checkbox}
-                                on:changed={(e) => {
-                                    protocol.enable = e.detail.value;
-                                    updated();
-                                }}
-                            />
-                        </MiniItem>
-                    {/each}
-                </Group>
-
-                <!-- 资源文件路径 -->
-                <Group title={i18n.settings.pathnames.title}>
-                    {#each Object.entries(config.window.open.pathnames) as [key, pathname] (key)}
-                        <MiniItem
-                            marginRight="1em"
-                            minWidth="9em"
-                        >
-                            <code
-                                slot="title"
-                                class="fn__code">{pathname.prefix}</code
-                            >
-                            <Input
-                                slot="input"
-                                settingKey="Checkbox"
-                                settingValue={pathname.enable}
-                                type={ItemType.checkbox}
-                                on:changed={(e) => {
-                                    pathname.enable = e.detail.value;
-                                    updated();
-                                }}
-                            />
-                        </MiniItem>
-                    {/each}
-                </Group>
-            </div>
-
-            <!-- 标签页 3 - 快捷键设置 -->
-            <div
-                class:fn__none={tabs.window[2].key !== focusTab}
-                data-type={tabs.window[2].name}
-            >
-                <!-- 是否启用快捷键 -->
-                <Item title={i18n.settings.open.enableShortcut.title}>
-                    <Input
-                        slot="input"
-                        settingKey="enable"
-                        settingValue={config.window.open.mouse.enable}
-                        type={ItemType.checkbox}
-                        on:changed={(e) => {
-                            config.window.open.mouse.enable = e.detail.value;
-                            updated();
-                        }}
-                    />
-                </Item>
-
-                <!-- 快捷键设置 -->
-                <Shortcut
-                    disabledMouseButton={false}
-                    displayMouseEvent={false}
-                    minWidth="16em"
-                    mouseButtonOptions={mouse_button_options}
-                    mouseButtonTitle={i18n.settings.mouse.button}
-                    shortcut={config.window.open.mouse}
-                    title={i18n.settings.open.shortcut.title}
-                    on:changed={updated}
-                />
-            </div>
-
-            <!-- 标签页 4 - 思源窗口设置 -->
-            <div
-                class:fn__none={tabs.window[3].key !== focusTab}
-                data-type={tabs.window[3].name}
-            >
-                <!-- 是否启用 -->
-                <Item
-                    text={i18n.settings.siyuan.enable.description}
-                    title={i18n.settings.siyuan.enable.title}
-                >
-                    <Input
-                        slot="input"
-                        settingKey="enable"
-                        settingValue={config.window.siyuan.enable}
-                        type={ItemType.checkbox}
-                        on:changed={(e) => {
-                            config.window.siyuan.enable = e.detail.value;
-                            updated();
-                        }}
-                    />
-                </Item>
-
-                <!-- 打开一个桌面端编辑器 -->
-                <Item
-                    text={i18n.settings.siyuan.open.desktop.description}
-                    title={i18n.settings.siyuan.open.desktop.title}
-                >
-                    <Input
-                        slot="input"
-                        settingKey="open-desktop-window"
-                        settingValue={i18n.settings.siyuan.open.desktop.text}
+                        onClicked={resetOptions}
+                        settingKey="Reset"
+                        settingValue={i18n.settings.generalSettings.reset.text}
                         type={ItemType.button}
-                        on:clicked={(e) => plugin.openSiyuanDesktopWindow(e.detail.event)}
                     />
-                </Item>
+                {/snippet}
+            </Item>
+        </Panel>
 
-                <!-- 打开一个移动端编辑器 -->
-                <Item
-                    text={i18n.settings.siyuan.open.mobile.description}
-                    title={i18n.settings.siyuan.open.mobile.title}
-                >
-                    <Input
-                        slot="input"
-                        settingKey="open-mobile-window"
-                        settingValue={i18n.settings.siyuan.open.mobile.text}
-                        type={ItemType.button}
-                        on:clicked={(e) => plugin.openSiyuanMobileWindow(e.detail.event)}
-                    />
-                </Item>
+        <!-- 打开页签的设置面板 -->
+        <Panel display={panels[1].key === focusPanel}>
+            <Tabs
+                focus={tab_settings_tabs_focus_key}
+                tabs={tabs.tab}
+            >
+                {#snippet children(focusTab)}
+                    <!-- 标签页 1 - 通用设置 -->
+                    <div
+                        class:fn__none={tabs.tab[0].key !== focusTab}
+                        data-type={tabs.tab[0].name}
+                    >
+                        <!-- 是否启用 -->
+                        <Item
+                            text={i18n.settings.open.enable.tab.description}
+                            title={i18n.settings.open.enable.tab.title}
+                        >
+                            {#snippet input()}
+                                <Input
+                                    onChanged={(e) => {
+                                        config.tab.enable = e.value;
+                                        updated();
+                                    }}
+                                    settingKey="Checkbox"
+                                    settingValue={config.tab.enable}
+                                    type={ItemType.checkbox}
+                                />
+                            {/snippet}
+                        </Item>
 
-                <!-- 是否默认聚焦 -->
-                <Item
-                    text={i18n.settings.siyuan.focus.description}
-                    title={i18n.settings.siyuan.focus.title}
-                >
-                    <Input
-                        slot="input"
-                        settingKey="focus"
-                        settingValue={config.window.siyuan.focus}
-                        type={ItemType.checkbox}
-                        on:changed={(e) => {
-                            config.window.siyuan.focus = e.detail.value;
-                            updated();
-                        }}
-                    />
-                </Item>
+                        <!-- 编辑器超链接 -->
+                        <Item
+                            text={i18n.settings.open.editorHyperlink.description}
+                            title={i18n.settings.open.editorHyperlink.title}
+                        >
+                            {#snippet input()}
+                                <Input
+                                    onChanged={(e) => {
+                                        config.tab.open.targets.hyperlink.editor.enable = e.value;
+                                        updated();
+                                    }}
+                                    settingKey="Checkbox"
+                                    settingValue={config.tab.open.targets.hyperlink.editor.enable}
+                                    type={ItemType.checkbox}
+                                />
+                            {/snippet}
+                        </Item>
 
-                <!-- 默认打开的思源编辑器 -->
-                <Item
-                    text={i18n.settings.siyuan.editorType.description}
-                    title={i18n.settings.siyuan.editorType.title}
-                >
-                    <Input
-                        slot="input"
-                        options={[
-                            { key: EditorType.mobile, text: i18n.settings.siyuan.editorType.options.mobile },
-                            { key: EditorType.desktop, text: i18n.settings.siyuan.editorType.options.desktop },
-                            { key: EditorType.window, text: i18n.settings.siyuan.editorType.options.window },
-                        ]}
-                        settingKey="menuBar"
-                        settingValue={config.window.siyuan.editorType}
-                        type={ItemType.select}
-                        on:changed={(e) => {
-                            config.window.siyuan.editorType = e.detail.value;
-                            updated();
-                        }}
-                    />
-                </Item>
-            </div>
-        </Tabs>
-    </Panel>
+                        <!-- 其他超链接 -->
+                        <Item
+                            text={i18n.settings.open.otherHyperlink.description}
+                            title={i18n.settings.open.otherHyperlink.title}
+                        >
+                            {#snippet input()}
+                                <Input
+                                    onChanged={(e) => {
+                                        config.tab.open.targets.hyperlink.other.enable = e.value;
+                                        updated();
+                                    }}
+                                    settingKey="Checkbox"
+                                    settingValue={config.tab.open.targets.hyperlink.other.enable}
+                                    type={ItemType.checkbox}
+                                />
+                            {/snippet}
+                        </Item>
+                    </div>
+                    <!-- 标签页 2 - 超链接设置 -->
+                    <div
+                        class:fn__none={tabs.tab[1].key !== focusTab}
+                        data-type={tabs.tab[1].name}
+                    >
+                        <!-- URL 协议 -->
+                        <Group title={i18n.settings.protocols.title}>
+                            {#each Object.entries(config.tab.open.protocols) as [key, protocol] (key)}
+                                <MiniItem minWidth="8em">
+                                    {#snippet title()}
+                                        <code
+                                            class="fn__code">{protocol.prefix}</code
+                                        >
+                                    {/snippet}
+                                    {#snippet input()}
+                                        <Input
+                                            onChanged={(e) => {
+                                                protocol.enable = e.value;
+                                                updated();
+                                            }}
+                                            settingKey="Checkbox"
+                                            settingValue={protocol.enable}
+                                            type={ItemType.checkbox}
+                                        />
+                                    {/snippet}
+                                </MiniItem>
+                            {/each}
+                        </Group>
+
+                        <!-- 资源文件路径名 -->
+                        <Group title={i18n.settings.pathnames.title}>
+                            {#each Object.entries(config.tab.open.pathnames) as [key, pathname] (key)}
+                                <MiniItem
+                                    marginRight="1em"
+                                    minWidth="9em"
+                                >
+                                    {#snippet title()}
+                                        <code
+                                            class="fn__code">{pathname.prefix}</code
+                                        >
+                                    {/snippet}
+                                    {#snippet input()}
+                                        <Input
+                                            onChanged={(e) => {
+                                                pathname.enable = e.value;
+                                                updated();
+                                            }}
+                                            settingKey="Checkbox"
+                                            settingValue={pathname.enable}
+                                            type={ItemType.checkbox}
+                                        />
+                                    {/snippet}
+                                </MiniItem>
+                            {/each}
+                        </Group>
+                    </div>
+                    <!-- 标签页 3 - 快捷键设置 -->
+                    <div
+                        class:fn__none={tabs.tab[2].key !== focusTab}
+                        data-type={tabs.tab[2].name}
+                    >
+                        <!-- 是否启用快捷键 -->
+                        <Item title={i18n.settings.open.enableShortcut.title}>
+                            {#snippet input()}
+                                <Input
+                                    onChanged={(e) => {
+                                        config.tab.open.mouse.enable = e.value;
+                                        updated();
+                                    }}
+                                    settingKey="enable"
+                                    settingValue={config.tab.open.mouse.enable}
+                                    type={ItemType.checkbox}
+                                />
+                            {/snippet}
+                        </Item>
+
+                        <!-- 快捷键设置 -->
+                        <Shortcut
+                            disabledMouseButton={false}
+                            displayMouseEvent={false}
+                            minWidth="16em"
+                            mouseButtonOptions={mouse_button_options}
+                            mouseButtonTitle={i18n.settings.mouse.button}
+                            onChanged={updated}
+                            shortcut={config.tab.open.mouse}
+                            title={i18n.settings.open.shortcut.title}
+                        />
+                    </div>
+                {/snippet}
+            </Tabs>
+        </Panel>
+
+        <!-- 打开窗口的设置面板 -->
+        <Panel display={panels[2].key === focusPanel}>
+            <Tabs
+                focus={window_settings_tabs_focus_key}
+                tabs={tabs.window}
+            >
+                {#snippet children(focusTab)}
+                    <!-- 标签页 1 - 通用设置 -->
+                    <div
+                        class:fn__none={tabs.window[0].key !== focusTab}
+                        data-type={tabs.window[0].name}
+                    >
+                        <!-- 是否启用 -->
+                        <Item
+                            text={i18n.settings.open.enable.window.description}
+                            title={i18n.settings.open.enable.window.title}
+                        >
+                            {#snippet input()}
+                                <Input
+                                    onChanged={(e) => {
+                                        config.window.enable = e.value;
+                                        updated();
+                                    }}
+                                    settingKey="enable"
+                                    settingValue={config.window.enable}
+                                    type={ItemType.checkbox}
+                                />
+                            {/snippet}
+                        </Item>
+
+                        <!-- 编辑器超链接 -->
+                        <Item
+                            text={i18n.settings.open.editorHyperlink.description}
+                            title={i18n.settings.open.editorHyperlink.title}
+                        >
+                            {#snippet input()}
+                                <Input
+                                    onChanged={(e) => {
+                                        config.window.open.targets.hyperlink.editor = e.value;
+                                        updated();
+                                    }}
+                                    settingKey="editorHyperlink"
+                                    settingValue={config.window.open.targets.hyperlink.editor}
+                                    type={ItemType.checkbox}
+                                />
+                            {/snippet}
+                        </Item>
+
+                        <!-- 其他超链接 -->
+                        <Item
+                            text={i18n.settings.open.otherHyperlink.description}
+                            title={i18n.settings.open.otherHyperlink.title}
+                        >
+                            {#snippet input()}
+                                <Input
+                                    onChanged={(e) => {
+                                        config.window.open.targets.hyperlink.other.enable = e.value;
+                                        updated();
+                                    }}
+                                    settingKey="otherHyperlink"
+                                    settingValue={config.window.open.targets.hyperlink.other}
+                                    type={ItemType.checkbox}
+                                />
+                            {/snippet}
+                        </Item>
+
+                        <!-- 窗口宽度 -->
+                        <Item
+                            text={i18n.settings.window.width.description}
+                            title={i18n.settings.window.width.title}
+                        >
+                            {#snippet input()}
+                                <Input
+                                    limits={{ min: 320, max: 15360, step: 40 }}
+                                    onChanged={(e) => {
+                                        config.window.params.width = e.value;
+                                        updated();
+                                    }}
+                                    settingKey="width"
+                                    settingValue={config.window.params.width}
+                                    type={ItemType.number}
+                                />
+                            {/snippet}
+                        </Item>
+
+                        <!-- 窗口高度 -->
+                        <Item
+                            text={i18n.settings.window.height.description}
+                            title={i18n.settings.window.height.title}
+                        >
+                            {#snippet input()}
+                                <Input
+                                    limits={{ min: 240, max: 8640, step: 40 }}
+                                    onChanged={(e) => {
+                                        config.window.params.height = e.value;
+                                        updated();
+                                    }}
+                                    settingKey="height"
+                                    settingValue={config.window.params.height}
+                                    type={ItemType.number}
+                                />
+                            {/snippet}
+                        </Item>
+
+                        <!-- 窗口居中 -->
+                        <Item
+                            text={i18n.settings.window.center.description}
+                            title={i18n.settings.window.center.title}
+                        >
+                            {#snippet input()}
+                                <Input
+                                    onChanged={(e) => {
+                                        config.window.params.center = e.value;
+                                        updated();
+                                    }}
+                                    settingKey="center"
+                                    settingValue={config.window.params.center}
+                                    type={ItemType.checkbox}
+                                />
+                            {/snippet}
+                        </Item>
+
+                        <!-- 窗口置顶 -->
+                        <Item
+                            text={i18n.settings.window.top.description}
+                            title={i18n.settings.window.top.title}
+                        >
+                            {#snippet input()}
+                                <Input
+                                    onChanged={(e) => {
+                                        config.window.params.alwaysOnTop = e.value;
+                                        updated();
+                                    }}
+                                    settingKey="top"
+                                    settingValue={config.window.params.alwaysOnTop}
+                                    type={ItemType.checkbox}
+                                />
+                            {/snippet}
+                        </Item>
+
+                        <!-- 窗口菜单栏 -->
+                        <Item
+                            text={i18n.settings.window.menuBar.description}
+                            title={i18n.settings.window.menuBar.title}
+                        >
+                            {#snippet input()}
+                                <Input
+                                    onChanged={(e) => {
+                                        switch (e.value) {
+                                            case MenuBarStatus.AutoHide:
+                                                config.window.params.enableMenuBar = true;
+                                                config.window.params.autoHideMenuBar = true;
+                                                break;
+                                            case MenuBarStatus.AlwaysShow:
+                                                config.window.params.enableMenuBar = true;
+                                                config.window.params.autoHideMenuBar = false;
+                                                break;
+                                            case MenuBarStatus.Disabled:
+                                                config.window.params.enableMenuBar = false;
+                                                break;
+                                        }
+                                        updated();
+                                    }}
+                                    options={[
+                                        { key: MenuBarStatus.AutoHide, text: i18n.settings.window.menuBar.options.autoHide },
+                                        { key: MenuBarStatus.AlwaysShow, text: i18n.settings.window.menuBar.options.alwaysShow },
+                                        { key: MenuBarStatus.Disabled, text: i18n.settings.window.menuBar.options.disabled },
+                                    ]}
+                                    settingKey="menuBar"
+                                    settingValue={config.window.params.enableMenuBar // 是否启用菜单栏
+                                        ? config.window.params.autoHideMenuBar // 是否自动隐藏菜单栏
+                                            ? MenuBarStatus.AutoHide // 自动隐藏
+                                            : MenuBarStatus.AlwaysShow // 总是显示
+                                        : MenuBarStatus.Disabled}
+                                    type={ItemType.select}
+                                />
+                            {/snippet}
+                        </Item>
+                    </div>
+
+                    <!-- 标签页 2 - 超链接设置 -->
+                    <div
+                        class:fn__none={tabs.window[1].key !== focusTab}
+                        data-type={tabs.window[1].name}
+                    >
+                        <!-- URL 协议 -->
+                        <Group title={i18n.settings.protocols.title}>
+                            {#each Object.entries(config.window.open.protocols) as [key, protocol] (key)}
+                                <MiniItem minWidth="8em">
+                                    {#snippet title()}
+                                        <code
+                                            class="fn__code">{protocol.prefix}</code
+                                        >
+                                    {/snippet}
+                                    {#snippet input()}
+                                        <Input
+                                            onChanged={(e) => {
+                                                protocol.enable = e.value;
+                                                updated();
+                                            }}
+                                            settingKey="Checkbox"
+                                            settingValue={protocol.enable}
+                                            type={ItemType.checkbox}
+                                        />
+                                    {/snippet}
+                                </MiniItem>
+                            {/each}
+                        </Group>
+
+                        <!-- 资源文件路径 -->
+                        <Group title={i18n.settings.pathnames.title}>
+                            {#each Object.entries(config.window.open.pathnames) as [key, pathname] (key)}
+                                <MiniItem
+                                    marginRight="1em"
+                                    minWidth="9em"
+                                >
+                                    {#snippet title()}
+                                        <code
+                                            class="fn__code">{pathname.prefix}</code
+                                        >
+                                    {/snippet}
+                                    {#snippet input()}
+                                        <Input
+                                            onChanged={(e) => {
+                                                pathname.enable = e.value;
+                                                updated();
+                                            }}
+                                            settingKey="Checkbox"
+                                            settingValue={pathname.enable}
+                                            type={ItemType.checkbox}
+                                        />
+                                    {/snippet}
+                                </MiniItem>
+                            {/each}
+                        </Group>
+                    </div>
+
+                    <!-- 标签页 3 - 快捷键设置 -->
+                    <div
+                        class:fn__none={tabs.window[2].key !== focusTab}
+                        data-type={tabs.window[2].name}
+                    >
+                        <!-- 是否启用快捷键 -->
+                        <Item title={i18n.settings.open.enableShortcut.title}>
+                            {#snippet input()}
+                                <Input
+                                    onChanged={(e) => {
+                                        config.window.open.mouse.enable = e.value;
+                                        updated();
+                                    }}
+                                    settingKey="enable"
+                                    settingValue={config.window.open.mouse.enable}
+                                    type={ItemType.checkbox}
+                                />
+                            {/snippet}
+                        </Item>
+
+                        <!-- 快捷键设置 -->
+                        <Shortcut
+                            disabledMouseButton={false}
+                            displayMouseEvent={false}
+                            minWidth="16em"
+                            mouseButtonOptions={mouse_button_options}
+                            mouseButtonTitle={i18n.settings.mouse.button}
+                            onChanged={updated}
+                            shortcut={config.window.open.mouse}
+                            title={i18n.settings.open.shortcut.title}
+                        />
+                    </div>
+
+                    <!-- 标签页 4 - 思源窗口设置 -->
+                    <div
+                        class:fn__none={tabs.window[3].key !== focusTab}
+                        data-type={tabs.window[3].name}
+                    >
+                        <!-- 是否启用 -->
+                        <Item
+                            text={i18n.settings.siyuan.enable.description}
+                            title={i18n.settings.siyuan.enable.title}
+                        >
+                            {#snippet input()}
+                                <Input
+                                    onChanged={(e) => {
+                                        config.window.siyuan.enable = e.value;
+                                        updated();
+                                    }}
+                                    settingKey="enable"
+                                    settingValue={config.window.siyuan.enable}
+                                    type={ItemType.checkbox}
+                                />
+                            {/snippet}
+                        </Item>
+
+                        <!-- 打开一个桌面端编辑器 -->
+                        <Item
+                            text={i18n.settings.siyuan.open.desktop.description}
+                            title={i18n.settings.siyuan.open.desktop.title}
+                        >
+                            {#snippet input()}
+                                <Input
+                                    onClicked={(e) => plugin.openSiyuanDesktopWindow(e.event)}
+                                    settingKey="open-desktop-window"
+                                    settingValue={i18n.settings.siyuan.open.desktop.text}
+                                    type={ItemType.button}
+                                />
+                            {/snippet}
+                        </Item>
+
+                        <!-- 打开一个移动端编辑器 -->
+                        <Item
+                            text={i18n.settings.siyuan.open.mobile.description}
+                            title={i18n.settings.siyuan.open.mobile.title}
+                        >
+                            {#snippet input()}
+                                <Input
+                                    onClicked={(e) => plugin.openSiyuanMobileWindow(e.event)}
+                                    settingKey="open-mobile-window"
+                                    settingValue={i18n.settings.siyuan.open.mobile.text}
+                                    type={ItemType.button}
+                                />
+                            {/snippet}
+                        </Item>
+
+                        <!-- 是否默认聚焦 -->
+                        <Item
+                            text={i18n.settings.siyuan.focus.description}
+                            title={i18n.settings.siyuan.focus.title}
+                        >
+                            {#snippet input()}
+                                <Input
+                                    onChanged={(e) => {
+                                        config.window.siyuan.focus = e.value;
+                                        updated();
+                                    }}
+                                    settingKey="focus"
+                                    settingValue={config.window.siyuan.focus}
+                                    type={ItemType.checkbox}
+                                />
+                            {/snippet}
+                        </Item>
+
+                        <!-- 默认打开的思源编辑器 -->
+                        <Item
+                            text={i18n.settings.siyuan.editorType.description}
+                            title={i18n.settings.siyuan.editorType.title}
+                        >
+                            {#snippet input()}
+                                <Input
+                                    onChanged={(e) => {
+                                        config.window.siyuan.editorType = e.value;
+                                        updated();
+                                    }}
+                                    options={[
+                                        { key: EditorType.mobile, text: i18n.settings.siyuan.editorType.options.mobile },
+                                        { key: EditorType.desktop, text: i18n.settings.siyuan.editorType.options.desktop },
+                                        { key: EditorType.window, text: i18n.settings.siyuan.editorType.options.window },
+                                    ]}
+                                    settingKey="menuBar"
+                                    settingValue={config.window.siyuan.editorType}
+                                    type={ItemType.select}
+                                />
+                            {/snippet}
+                        </Item>
+                    </div>
+                {/snippet}
+            </Tabs>
+        </Panel>
+    {/snippet}
 </Panels>
 
 <style lang="less">
